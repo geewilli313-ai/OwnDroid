@@ -393,6 +393,8 @@
     <string name="enable_lockdown">Enable lockdown</string>
     <string name="clear_current_config">Clear current config</string>
     <string name="permissions">Permissions</string>
+    <string name="user_apps">User apps</string>
+    <string name="system_apps">System apps</string>
     <string name="not_installed">Not installed</string>
     <string name="block_uninstall">Block uninstall</string>
     <string name="enable_system_app">Enable system app</string>

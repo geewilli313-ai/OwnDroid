@@ -165,8 +165,12 @@ import com.bintianqi.owndroid.dpm.PasswordInfoScreen
 import com.bintianqi.owndroid.dpm.PasswordScreen
 import com.bintianqi.owndroid.dpm.PermissionPolicy
 import com.bintianqi.owndroid.dpm.PermissionPolicyScreen
-import com.bintianqi.owndroid.dpm.PermissionsManager
-import com.bintianqi.owndroid.dpm.PermissionsManagerScreen
+import com.bintianqi.owndroid.dpm.AppPermissionsManager
+import com.bintianqi.owndroid.dpm.AppPermissionsManagerScreen
+import com.bintianqi.owndroid.dpm.PermissionDetail
+import com.bintianqi.owndroid.dpm.PermissionDetailScreen
+import com.bintianqi.owndroid.dpm.PermissionManager
+import com.bintianqi.owndroid.dpm.PermissionManagerScreen
 import com.bintianqi.owndroid.dpm.PermittedAccessibilityServices
 import com.bintianqi.owndroid.dpm.PermittedAsAndImPackages
 import com.bintianqi.owndroid.dpm.PermittedInputMethods
@@ -566,10 +570,17 @@ fun Home(vm: MyViewModel, onLock: () -> Unit) {
                 ::navigateToAppGroups, vm.appGroups, R.string.info_disable_user_control
             )
         }
-        composable<PermissionsManager> {
-            PermissionsManagerScreen(
-                vm.packagePermissions, vm::getPackagePermissions, vm::setPackagePermission,
-                ::navigateUp, it.toRoute(), vm.chosenPackage, ::chooseSinglePackage
+        composable<AppPermissionsManager> {
+            AppPermissionsManagerScreen(
+                vm::getPackagePermissions, vm::setPackagePermission, ::navigateUp, it.toRoute()
+            )
+        }
+        composable<PermissionManager> {
+            PermissionManagerScreen(::navigate, ::navigateUp)
+        }
+        composable<PermissionDetail> {
+            PermissionDetailScreen(
+                it.toRoute(), vm::getPermissionPackages, vm::setPackagePermission, ::navigateUp
             )
         }
         composable<DisableMeteredData> {

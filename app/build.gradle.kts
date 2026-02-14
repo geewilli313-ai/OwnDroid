@@ -62,10 +62,11 @@ android {
     dependenciesInfo {
         includeInApk = false
     }
-    composeCompiler {
-        includeSourceInformation = false
-        includeTraceMarkers = false
-    }
+}
+
+composeCompiler {
+    includeSourceInformation = false
+    includeTraceMarkers = false
 }
 
 kotlin {

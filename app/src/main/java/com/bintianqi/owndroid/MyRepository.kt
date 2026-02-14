@@ -272,6 +272,6 @@ class MyRepository(val dbHelper: MyDbHelper) {
         return list
     }
     fun deleteAllCrossProfileIntentFilters() {
-        dbHelper.writableDatabase.delete("cross_profile_intent_filters", null, null);
+        dbHelper.writableDatabase.delete("cross_profile_intent_filters", null, null)
     }
 }

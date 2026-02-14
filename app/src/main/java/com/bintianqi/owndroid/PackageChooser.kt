@@ -1,7 +1,6 @@
 package com.bintianqi.owndroid
 
 import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -276,6 +275,3 @@ fun AppChooserScreen(
         }
     }
 }
-
-val getInstalledAppsFlags =
-    if(Build.VERSION.SDK_INT >= 24) PackageManager.MATCH_DISABLED_COMPONENTS or PackageManager.MATCH_UNINSTALLED_PACKAGES else 0

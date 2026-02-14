@@ -359,6 +359,8 @@
     <string name="enable_lockdown">启用锁定</string>
     <string name="clear_current_config">清除当前配置</string>
     <string name="permissions">权限</string>
+    <string name="user_apps">用户应用</string>
+    <string name="system_apps">系统应用</string>
     <string name="not_installed">未安装</string>
     <string name="block_uninstall">阻止卸载</string>
     <string name="disable_user_control">禁止用户控制</string>

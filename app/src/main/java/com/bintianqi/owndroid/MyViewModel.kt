@@ -107,7 +107,6 @@ import com.bintianqi.owndroid.dpm.doUserOperationWithContext
 import com.bintianqi.owndroid.dpm.getPackageInstaller
 import com.bintianqi.owndroid.dpm.globalSettings
 import com.bintianqi.owndroid.dpm.handlePrivilegeChange
-import com.bintianqi.owndroid.dpm.isValidPackageName
 import com.bintianqi.owndroid.dpm.parsePackageInstallerMessage
 import com.bintianqi.owndroid.dpm.runtimePermissions
 import com.bintianqi.owndroid.dpm.secureSettings
@@ -280,20 +279,23 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
         getUcdPackages()
     }
 
-    val packagePermissions = MutableStateFlow(emptyMap<String, Int>())
-    fun getPackagePermissions(name: String) {
-        if (name.isValidPackageName) {
-            packagePermissions.value = runtimePermissions.associate {
-                it.id to DPM.getPermissionGrantState(DAR, name, it.id)
-            }
-        } else {
-            packagePermissions.value = emptyMap()
+    fun getPackagePermissions(name: String): Map<String, Int> {
+        return runtimePermissions.associate {
+            it.id to DPM.getPermissionGrantState(DAR, name, it.id)
         }
     }
     fun setPackagePermission(name: String, permission: String, status: Int): Boolean {
-        val result = DPM.setPermissionGrantState(DAR, name, permission, status)
-        getPackagePermissions(name)
-        return result
+        return DPM.setPermissionGrantState(DAR, name, permission, status)
+    }
+    fun getPermissionPackages(permission: String): List<Pair<AppInfo, Int>> {
+        return PM.getInstalledPackages(
+            getInstalledAppsFlags or PackageManager.GET_PERMISSIONS
+        ).filter {
+            it.requestedPermissions?.contains(permission) ?: false
+        }.map {
+            getAppInfo(it.packageName) to
+                    DPM.getPermissionGrantState(DAR, it.packageName, permission)
+        }
     }
 
     // Metered data disabled packages

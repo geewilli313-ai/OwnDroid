@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -179,3 +180,6 @@ fun registerPackageRemovedReceiver(
 }
 
 fun parsePackageNames(input: String) = input.split('\n').filter { it.isNotEmpty() }
+
+val getInstalledAppsFlags =
+    if(Build.VERSION.SDK_INT >= 24) PackageManager.MATCH_DISABLED_COMPONENTS or PackageManager.MATCH_UNINSTALLED_PACKAGES else 0
