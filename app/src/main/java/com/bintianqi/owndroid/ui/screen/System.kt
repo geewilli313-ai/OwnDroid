@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import android.annotation.SuppressLint
 import android.app.admin.DevicePolicyManager
@@ -131,7 +131,9 @@ import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.MySmallTitleScaffold
 import com.bintianqi.owndroid.ui.NavIcon
 import com.bintianqi.owndroid.ui.Notes
+import com.bintianqi.owndroid.ui.PackageNameTextField
 import com.bintianqi.owndroid.ui.SwitchItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.bintianqi.owndroid.yesOrNo
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.channels.Channel
@@ -139,30 +141,33 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.roundToLong
 
-@Serializable object SystemManager
-
 @Composable
 fun SystemManagerScreen(
-    vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit
+    vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit
 ) {
     val context = LocalContext.current
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     /** 1: reboot, 2: bug report, 3: org name, 4: org id, 5: enrollment specific id*/
     var dialog by rememberSaveable { mutableIntStateOf(0) }
     MyScaffold(R.string.system, onNavigateUp, 0.dp) {
-        FunctionItem(R.string.options, icon = R.drawable.tune_fill0) { onNavigate(SystemOptions) }
-        FunctionItem(R.string.keyguard, icon = R.drawable.screen_lock_portrait_fill0) { onNavigate(Keyguard) }
+        FunctionItem(R.string.options, icon = R.drawable.tune_fill0) {
+            onNavigate(Destination.SystemOptions)
+        }
+        FunctionItem(R.string.keyguard, icon = R.drawable.screen_lock_portrait_fill0) {
+            onNavigate(Destination.Keyguard)
+        }
         if(VERSION.SDK_INT >= 24 && privilege.device && !privilege.dhizuku)
-            FunctionItem(R.string.hardware_monitor, icon = R.drawable.memory_fill0) { onNavigate(HardwareMonitor) }
+            FunctionItem(R.string.hardware_monitor, icon = R.drawable.memory_fill0) {
+                onNavigate(Destination.HardwareMonitor)
+            }
         FunctionItem(R.string.default_input_method, icon = R.drawable.keyboard_fill0) {
-            onNavigate(DefaultInputMethod)
+            onNavigate(Destination.DefaultInputMethod)
         }
         if(VERSION.SDK_INT >= 24 && privilege.device) {
             FunctionItem(R.string.reboot, icon = R.drawable.restart_alt_fill0) { dialog = 1 }
@@ -171,32 +176,56 @@ fun SystemManagerScreen(
             FunctionItem(R.string.bug_report, icon = R.drawable.bug_report_fill0) { dialog = 2 }
         }
         if(VERSION.SDK_INT >= 28 && (privilege.device || privilege.org)) {
-            FunctionItem(R.string.change_time, icon = R.drawable.schedule_fill0) { onNavigate(ChangeTime) }
-            FunctionItem(R.string.change_timezone, icon = R.drawable.globe_fill0) { onNavigate(ChangeTimeZone) }
+            FunctionItem(R.string.change_time, icon = R.drawable.schedule_fill0) {
+                onNavigate(Destination.ChangeTime)
+            }
+            FunctionItem(R.string.change_timezone, icon = R.drawable.globe_fill0) {
+                onNavigate(Destination.ChangeTimezone)
+            }
         }
         if (VERSION.SDK_INT >= 36 && (privilege.device || privilege.org)) {
-            FunctionItem(R.string.auto_time_policy, icon = R.drawable.schedule_fill0) { onNavigate(AutoTimePolicy) }
-            FunctionItem(R.string.auto_timezone_policy, icon = R.drawable.globe_fill0) { onNavigate(AutoTimeZonePolicy) }
+            FunctionItem(R.string.auto_time_policy, icon = R.drawable.schedule_fill0) {
+                onNavigate(Destination.AutoTimePolicy)
+            }
+            FunctionItem(R.string.auto_timezone_policy, icon = R.drawable.globe_fill0) {
+                onNavigate(Destination.AutoTimezonePolicy)
+            }
         }
         /*if(VERSION.SDK_INT >= 28 && (deviceOwner || profileOwner))
             FunctionItem(R.string.key_pairs, icon = R.drawable.key_vertical_fill0) { navCtrl.navigate("KeyPairs") }*/
         if(VERSION.SDK_INT >= 35 && (privilege.device || (privilege.profile && privilege.affiliated)))
-            FunctionItem(R.string.content_protection_policy, icon = R.drawable.search_fill0) { onNavigate(ContentProtectionPolicy) }
-        FunctionItem(R.string.permission_policy, icon = R.drawable.key_fill0) { onNavigate(PermissionPolicy) }
+            FunctionItem(R.string.content_protection_policy, icon = R.drawable.search_fill0) {
+                onNavigate(Destination.ContentProtectionPolicy)
+            }
+        FunctionItem(R.string.permission_policy, icon = R.drawable.key_fill0) {
+            onNavigate(Destination.PermissionPolicy)
+        }
         if(VERSION.SDK_INT >= 34 && privilege.device) {
-            FunctionItem(R.string.mte_policy, icon = R.drawable.memory_fill0) { onNavigate(MtePolicy) }
+            FunctionItem(R.string.mte_policy, icon = R.drawable.memory_fill0) {
+                onNavigate(Destination.MtePolicy)
+            }
         }
         if(VERSION.SDK_INT >= 31) {
-            FunctionItem(R.string.nearby_streaming_policy, icon = R.drawable.share_fill0) { onNavigate(NearbyStreamingPolicy) }
+            FunctionItem(R.string.nearby_streaming_policy, icon = R.drawable.share_fill0) {
+                onNavigate(Destination.NearbyStreamingPolicy)
+            }
         }
         if (VERSION.SDK_INT >= 28 && privilege.device) {
-            FunctionItem(R.string.lock_task_mode, icon = R.drawable.lock_fill0) { onNavigate(LockTaskMode) }
+            FunctionItem(R.string.lock_task_mode, icon = R.drawable.lock_fill0) {
+                onNavigate(Destination.LockTaskMode)
+            }
         }
-        FunctionItem(R.string.ca_cert, icon = R.drawable.license_fill0) { onNavigate(CaCert) }
+        FunctionItem(R.string.ca_cert, icon = R.drawable.license_fill0) {
+            onNavigate(Destination.CaCert)
+        }
         if(VERSION.SDK_INT >= 26 && !privilege.dhizuku && (privilege.device || privilege.org)) {
-            FunctionItem(R.string.security_logging, icon = R.drawable.description_fill0) { onNavigate(SecurityLogging) }
+            FunctionItem(R.string.security_logging, icon = R.drawable.description_fill0) {
+                onNavigate(Destination.SecurityLogging)
+            }
         }
-        FunctionItem(R.string.device_info, icon = R.drawable.perm_device_information_fill0) { onNavigate(DeviceInfo) }
+        FunctionItem(R.string.device_info, icon = R.drawable.perm_device_information_fill0) {
+            onNavigate(Destination.DeviceInfo)
+        }
         if(VERSION.SDK_INT >= 24 && (privilege.profile || (VERSION.SDK_INT >= 26 && privilege.device))) {
             FunctionItem(R.string.org_name, icon = R.drawable.corporate_fare_fill0) { dialog = 3 }
         }
@@ -207,23 +236,37 @@ fun SystemManagerScreen(
             FunctionItem(R.string.enrollment_specific_id, icon = R.drawable.id_card_fill0) { dialog = 5 }
         }
         if(VERSION.SDK_INT >= 24 && (privilege.device || privilege.org)) {
-            FunctionItem(R.string.lock_screen_info, icon = R.drawable.screen_lock_portrait_fill0) { onNavigate(LockScreenInfo) }
+            FunctionItem(R.string.lock_screen_info, icon = R.drawable.screen_lock_portrait_fill0) {
+                onNavigate(Destination.LockScreenInfo)
+            }
         }
         if(VERSION.SDK_INT >= 24) {
-            FunctionItem(R.string.support_messages, icon = R.drawable.chat_fill0) { onNavigate(SupportMessage) }
+            FunctionItem(R.string.support_messages, icon = R.drawable.chat_fill0) {
+                onNavigate(Destination.SupportMessage)
+            }
         }
-        FunctionItem(R.string.disable_account_management, icon = R.drawable.account_circle_fill0) { onNavigate(DisableAccountManagement) }
+        FunctionItem(R.string.disable_account_management, icon = R.drawable.account_circle_fill0) {
+            onNavigate(Destination.DisableAccountManagement)
+        }
         if (privilege.device || privilege.org) {
-            FunctionItem(R.string.system_update_policy, icon = R.drawable.system_update_fill0) { onNavigate(SetSystemUpdatePolicy) }
+            FunctionItem(R.string.system_update_policy, icon = R.drawable.system_update_fill0) {
+                onNavigate(Destination.SystemUpdatePolicy)
+            }
         }
         if(VERSION.SDK_INT >= 29 && (privilege.device || privilege.org)) {
-            FunctionItem(R.string.install_system_update, icon = R.drawable.system_update_fill0) { onNavigate(InstallSystemUpdate) }
+            FunctionItem(R.string.install_system_update, icon = R.drawable.system_update_fill0) {
+                onNavigate(Destination.InstallSystemUpdate)
+            }
         }
         if(VERSION.SDK_INT >= 30 && (privilege.device || privilege.org)) {
-            FunctionItem(R.string.frp_policy, icon = R.drawable.device_reset_fill0) { onNavigate(FrpPolicy) }
+            FunctionItem(R.string.frp_policy, icon = R.drawable.device_reset_fill0) {
+                onNavigate(Destination.FrpPolicy)
+            }
         }
         if(SP.displayDangerousFeatures && !privilege.work) {
-            FunctionItem(R.string.wipe_data, icon = R.drawable.device_reset_fill0) { onNavigate(WipeData) }
+            FunctionItem(R.string.wipe_data, icon = R.drawable.device_reset_fill0) {
+                onNavigate(Destination.WipeData)
+            }
         }
     }
     if((dialog == 1 || dialog == 2) && VERSION.SDK_INT >= 24) AlertDialog(
@@ -329,13 +372,11 @@ data class SystemOptionsStatus(
     val stayOnWhilePluggedIn: Boolean = false
 )
 
-@Serializable object SystemOptions
-
 class GlobalSetting(val icon: Int, val name: Int, val setting: String) // also for secure settings
 
 // STAY_ON_WHILE_PLUGGED_IN is set separately
 val globalSettings = listOf(
-    GlobalSetting(R.drawable.cell_tower_fill0, R.string.data_roaming, Settings.Global.DATA_ROAMING),
+    //GlobalSetting(R.drawable.cell_tower_fill0, R.string.data_roaming, Settings.Global.DATA_ROAMING),
     GlobalSetting(R.drawable.adb_fill0, R.string.enable_adb, Settings.Global.ADB_ENABLED),
     GlobalSetting(R.drawable.usb_fill0, R.string.enable_usb_mass_storage,
         Settings.Global.USB_MASS_STORAGE_ENABLED),
@@ -457,8 +498,6 @@ fun SystemOptionsScreen(vm: MyViewModel, onNavigateUp: () -> Unit) {
     )
 }
 
-@Serializable object Keyguard
-
 @Composable
 fun KeyguardScreen(
     setKeyguardDisabled: (Boolean) -> Boolean, lock: (Boolean) -> Unit, onNavigateUp: () -> Unit
@@ -518,8 +557,6 @@ val temperatureTypes = mapOf(
     HardwarePropertiesManager.DEVICE_TEMPERATURE_BATTERY to R.string.battery_temp,
     HardwarePropertiesManager.DEVICE_TEMPERATURE_SKIN to R.string.skin_temp
 )
-
-@Serializable object HardwareMonitor
 
 @RequiresApi(24)
 @Composable
@@ -586,8 +623,6 @@ fun HardwareMonitorScreen(
     }
 }
 
-@Serializable object DefaultInputMethod
-
 @Composable
 fun DefaultInputMethodScreen(
     getCurrentIm: () -> String, imListState: StateFlow<List<Pair<String, AppInfo>>>,
@@ -631,8 +666,6 @@ fun DefaultInputMethodScreen(
         }
     }
 }
-
-@Serializable object ChangeTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(28)
@@ -768,8 +801,6 @@ fun ChangeTimeScreen(setTime: (Long, Boolean) -> Boolean, onNavigateUp: () -> Un
     }
 }
 
-@Serializable object ChangeTimeZone
-
 @RequiresApi(28)
 @Composable
 fun ChangeTimeZoneScreen(setTimeZone: (String) -> Boolean, onNavigateUp: () -> Unit) {
@@ -835,8 +866,6 @@ fun ChangeTimeZoneScreen(setTimeZone: (String) -> Boolean, onNavigateUp: () -> U
     )
 }
 
-@Serializable object AutoTimePolicy
-
 @RequiresApi(36)
 @Composable
 fun AutoTimePolicyScreen(
@@ -865,8 +894,6 @@ fun AutoTimePolicyScreen(
         Text(stringResource(R.string.apply))
     }
 }
-
-@Serializable object AutoTimeZonePolicy
 
 @RequiresApi(36)
 @Composable
@@ -1074,8 +1101,6 @@ fun KeyPairs(navCtrl: NavHostController) {
     }
 }*/
 
-@Serializable object ContentProtectionPolicy
-
 @RequiresApi(35)
 @Composable
 fun ContentProtectionPolicyScreen(
@@ -1105,8 +1130,6 @@ fun ContentProtectionPolicyScreen(
         Notes(R.string.info_content_protection_policy, HorizontalPadding)
     }
 }
-
-@Serializable object PermissionPolicy
 
 @Composable
 fun PermissionPolicyScreen(
@@ -1139,8 +1162,6 @@ fun PermissionPolicyScreen(
     }
 }
 
-@Serializable object MtePolicy
-
 @RequiresApi(34)
 @Composable
 fun MtePolicyScreen(
@@ -1166,8 +1187,6 @@ fun MtePolicyScreen(
         Notes(R.string.info_mte_policy, HorizontalPadding)
     }
 }
-
-@Serializable object NearbyStreamingPolicy
 
 @RequiresApi(31)
 @Composable
@@ -1240,8 +1259,6 @@ fun NearbyStreamingPolicyScreen(
         Notes(R.string.info_nearby_notification_streaming_policy, HorizontalPadding)
     }
 }
-
-@Serializable object LockTaskMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(28)
@@ -1467,8 +1484,6 @@ data class CaCertInfo(
     val bytes: ByteArray
 )
 
-@Serializable object CaCert
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalStdlibApi::class)
 @Composable
 fun CaCertScreen(
@@ -1639,8 +1654,6 @@ fun CaCertScreen(
     }
 }
 
-@Serializable object SecurityLogging
-
 @RequiresApi(24)
 @Composable
 fun SecurityLoggingScreen(
@@ -1745,8 +1758,6 @@ fun SecurityLoggingScreen(
     )
 }
 
-@Serializable object DisableAccountManagement
-
 @Composable
 fun DisableAccountManagementScreen(
     mdAccounts: StateFlow<List<String>>, getMdAccounts: () -> Unit,
@@ -1797,8 +1808,6 @@ data class FrpPolicyInfo(
     val enabled: Boolean,
     val accounts: List<String>
 )
-
-@Serializable object FrpPolicy
 
 @RequiresApi(30)
 @Composable
@@ -1873,8 +1882,6 @@ fun FrpPolicyScreen(
         Notes(R.string.info_frp_policy, HorizontalPadding)
     }
 }
-
-@Serializable object WipeData
 
 @Composable
 fun WipeDataScreen(
@@ -1988,8 +1995,6 @@ fun WipeDataScreen(
 data class SystemUpdatePolicyInfo(val type: Int, val start: Int, val end: Int)
 data class PendingSystemUpdateInfo(val exists: Boolean, val time: Long, val securityPatch: Boolean)
 
-@Serializable object SetSystemUpdatePolicy
-
 @Composable
 fun SystemUpdatePolicyScreen(
     getPolicy: () -> SystemUpdatePolicyInfo, setPolicy: (SystemUpdatePolicyInfo) -> Unit,
@@ -2082,8 +2087,6 @@ fun SystemUpdatePolicyScreen(
         }
     }
 }
-
-@Serializable object InstallSystemUpdate
 
 @SuppressLint("NewApi")
 @Composable

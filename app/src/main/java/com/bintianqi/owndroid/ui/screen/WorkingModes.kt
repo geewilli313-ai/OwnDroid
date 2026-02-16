@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
@@ -88,8 +88,10 @@ import com.bintianqi.owndroid.HorizontalPadding
 import com.bintianqi.owndroid.MyViewModel
 import com.bintianqi.owndroid.Privilege
 import com.bintianqi.owndroid.R
-import com.bintianqi.owndroid.Settings
 import com.bintianqi.owndroid.adaptiveInsets
+import com.bintianqi.owndroid.dpm.ACTIVATE_DEVICE_OWNER_COMMAND
+import com.bintianqi.owndroid.dpm.DelegatedAdmin
+import com.bintianqi.owndroid.dpm.DeviceAdmin
 import com.bintianqi.owndroid.showOperationResultToast
 import com.bintianqi.owndroid.ui.CircularProgressDialog
 import com.bintianqi.owndroid.ui.InfoItem
@@ -98,21 +100,20 @@ import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.MySmallTitleScaffold
 import com.bintianqi.owndroid.ui.NavIcon
 import com.bintianqi.owndroid.ui.Notes
+import com.bintianqi.owndroid.ui.PackageNameTextField
 import com.bintianqi.owndroid.ui.SwitchItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.bintianqi.owndroid.yesOrNo
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.serialization.Serializable
-
-@Serializable data class WorkModes(val canNavigateUp: Boolean)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun WorkModesScreen(
-    vm: MyViewModel, params: WorkModes, onNavigateUp: () -> Unit, onActivate: () -> Unit,
-    onDeactivate: () -> Unit, onNavigate: (Any) -> Unit
+    vm: MyViewModel, params: Destination.WorkingModes, onNavigateUp: () -> Unit,
+    onActivate: () -> Unit, onDeactivate: () -> Unit, onNavigate: (Destination) -> Unit
 ) {
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     /** 0: none, 1: device owner, 2: circular progress indicator, 3: result, 4: deactivate, 5: command */
@@ -162,7 +163,7 @@ fun WorkModesScreen(
                                 { Text(stringResource(R.string.delegated_admins)) },
                                 {
                                     expanded = false
-                                    onNavigate(DelegatedAdmins)
+                                    onNavigate(Destination.DelegatedAdmins)
                                 },
                                 leadingIcon = { Icon(painterResource(R.drawable.admin_panel_settings_fill0), null) }
                             )
@@ -170,13 +171,13 @@ fun WorkModesScreen(
                                 { Text(stringResource(R.string.transfer_ownership)) },
                                 {
                                     expanded = false
-                                    onNavigate(TransferOwnership)
+                                    onNavigate(Destination.TransferOwnership)
                                 },
                                 leadingIcon = { Icon(painterResource(R.drawable.swap_horiz_fill0), null) }
                             )
                         }
                     }
-                    if(!params.canNavigateUp) IconButton({ onNavigate(Settings) }) {
+                    if(!params.canNavigateUp) IconButton({ onNavigate(Destination.Settings) }) {
                         Icon(Icons.Default.Settings, null)
                     }
                 }
@@ -210,14 +211,14 @@ fun WorkModesScreen(
                 privilege.work || (VERSION.SDK_INT < 24 || vm.isCreatingWorkProfileAllowed())
             ) {
                 WorkingModeItem(R.string.work_profile, privilege.work) {
-                    if (!privilege.work) onNavigate(CreateWorkProfile)
+                    if (!privilege.work) onNavigate(Destination.CreateWorkProfile)
                 }
             }
             if (privilege.activated && !privilege.dhizuku) Row(
                 Modifier
                     .padding(top = 20.dp)
                     .fillMaxWidth()
-                    .clickable { onNavigate(DhizukuServerSettings) }
+                    .clickable { onNavigate(Destination.DhizukuServerSettings) }
                     .padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -357,10 +358,6 @@ fun WorkingModeItem(text: Int, active: Boolean, onClick: () -> Unit) {
     }
 }
 
-const val ACTIVATE_DEVICE_OWNER_COMMAND = "dpm set-device-owner com.bintianqi.owndroid/.Receiver"
-
-@Serializable object DhizukuServerSettings
-
 @Composable
 fun DhizukuServerSettingsScreen(
     dhizukuClients: StateFlow<List<Pair<DhizukuClientInfo, AppInfo>>>,
@@ -446,8 +443,6 @@ fun DhizukuServerSettingsScreen(
     }
 }
 
-@Serializable object LockScreenInfo
-
 @RequiresApi(24)
 @Composable
 fun LockScreenInfoScreen(
@@ -509,15 +504,11 @@ val delegatedScopesList = listOf(
     DelegatedScope(DevicePolicyManager.DELEGATION_SECURITY_LOGGING, R.string.security_logging, 31)
 ).filter { VERSION.SDK_INT >= it.requiresApi }
 
-data class DelegatedAdmin(val app: AppInfo, val scopes: List<String>)
-
-@Serializable object DelegatedAdmins
-
 @RequiresApi(26)
 @Composable
 fun DelegatedAdminsScreen(
     delegatedAdmins: StateFlow<List<DelegatedAdmin>>, getDelegatedAdmins: () -> Unit,
-    onNavigateUp: () -> Unit, onNavigate: (AddDelegatedAdmin) -> Unit
+    onNavigateUp: () -> Unit, onNavigate: (Destination.DelegatedAdminDetails) -> Unit
 ) {
     val admins by delegatedAdmins.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) { getDelegatedAdmins() }
@@ -537,7 +528,7 @@ fun DelegatedAdminsScreen(
                         Text(app.name, Modifier.alpha(0.8F), style = typography.bodyMedium)
                     }
                 }
-                IconButton({ onNavigate(AddDelegatedAdmin(app.name, scopes)) }) {
+                IconButton({ onNavigate(Destination.DelegatedAdminDetails(app.name, scopes)) }) {
                     Icon(Icons.Outlined.Edit, null)
                 }
             }
@@ -546,7 +537,7 @@ fun DelegatedAdminsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onNavigate(AddDelegatedAdmin()) }
+                    .clickable { onNavigate(Destination.DelegatedAdminDetails("", emptyList())) }
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -557,12 +548,10 @@ fun DelegatedAdminsScreen(
     }
 }
 
-@Serializable data class AddDelegatedAdmin(val pkg: String = "", val scopes: List<String> = emptyList())
-
 @RequiresApi(26)
 @Composable
 fun AddDelegatedAdminScreen(
-    chosenPackage: Channel<String>, onChoosePackage: () -> Unit, data: AddDelegatedAdmin,
+    chosenPackage: Channel<String>, onChoosePackage: () -> Unit, data: Destination.DelegatedAdminDetails,
     setDelegatedAdmin: (String, List<String>) -> Unit,  onNavigateUp: () -> Unit
 ) {
     val updateMode = data.pkg.isNotEmpty()
@@ -620,8 +609,6 @@ fun AddDelegatedAdminScreen(
     }
 }
 
-@Serializable object DeviceInfo
-
 @Composable
 fun DeviceInfoScreen(vm: MyViewModel, onNavigateUp: () -> Unit) {
     val privilege by Privilege.status.collectAsStateWithLifecycle()
@@ -656,8 +643,6 @@ fun DeviceInfoScreen(vm: MyViewModel, onNavigateUp: () -> Unit) {
         onDismissRequest = { dialog = 0 }
     )
 }
-
-@Serializable object SupportMessage
 
 @RequiresApi(24)
 @Composable
@@ -738,10 +723,6 @@ fun SupportMessageScreen(
         Notes(R.string.info_long_support_message)
     }
 }
-
-data class DeviceAdmin(val app: AppInfo, val admin: ComponentName)
-
-@Serializable object TransferOwnership
 
 @RequiresApi(28)
 @Composable

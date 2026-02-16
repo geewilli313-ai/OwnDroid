@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -71,29 +71,37 @@ import com.bintianqi.owndroid.ui.InfoItem
 import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.Notes
 import com.bintianqi.owndroid.ui.RadioButtonItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.bintianqi.owndroid.yesOrNo
-import kotlinx.serialization.Serializable
-
-@Serializable object Password
 
 @SuppressLint("NewApi")
 @Composable
-fun PasswordScreen(vm: MyViewModel,onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit) {
+fun PasswordScreen(vm: MyViewModel,onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit) {
     val context = LocalContext.current
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     var dialog by rememberSaveable { mutableIntStateOf(0) }
     MyScaffold(R.string.password_and_keyguard, onNavigateUp, 0.dp) {
-        FunctionItem(R.string.password_info, icon = R.drawable.info_fill0) { onNavigate(PasswordInfo) }
+        FunctionItem(R.string.password_info, icon = R.drawable.info_fill0) {
+            onNavigate(Destination.PasswordInfo)
+        }
         if (SP.displayDangerousFeatures) {
             if(VERSION.SDK_INT >= 26) {
-                FunctionItem(R.string.reset_password_token, icon = R.drawable.key_vertical_fill0) { onNavigate(ResetPasswordToken) }
+                FunctionItem(R.string.reset_password_token, icon = R.drawable.key_vertical_fill0) {
+                    onNavigate(Destination.ResetPasswordToken)
+                }
             }
-            FunctionItem(R.string.reset_password, icon = R.drawable.lock_reset_fill0) { onNavigate(ResetPassword) }
+            FunctionItem(R.string.reset_password, icon = R.drawable.lock_reset_fill0) {
+                onNavigate(Destination.ResetPassword)
+            }
         }
         if(VERSION.SDK_INT >= 31) {
-            FunctionItem(R.string.required_password_complexity, icon = R.drawable.password_fill0) { onNavigate(RequiredPasswordComplexity) }
+            FunctionItem(R.string.required_password_complexity, icon = R.drawable.password_fill0) {
+                onNavigate(Destination.RequiredPasswordComplexity)
+            }
         }
-        FunctionItem(R.string.disable_keyguard_features, icon = R.drawable.screen_lock_portrait_fill0) { onNavigate(KeyguardDisabledFeatures) }
+        FunctionItem(R.string.disable_keyguard_features, icon = R.drawable.screen_lock_portrait_fill0) {
+            onNavigate(Destination.KeyguardDisabledFeatures)
+        }
         if(privilege.device) {
             FunctionItem(R.string.max_time_to_lock, icon = R.drawable.schedule_fill0) { dialog = 1 }
             FunctionItem(R.string.pwd_expiration_timeout, icon = R.drawable.lock_clock_fill0) { dialog = 3 }
@@ -106,7 +114,9 @@ fun PasswordScreen(vm: MyViewModel,onNavigateUp: () -> Unit, onNavigate: (Any) -
         }
         FunctionItem(R.string.pwd_history, icon = R.drawable.history_fill0) { dialog = 5 }
         if(VERSION.SDK_INT < 31) {
-            FunctionItem(R.string.required_password_quality, icon = R.drawable.password_fill0) { onNavigate(RequiredPasswordQuality) }
+            FunctionItem(R.string.required_password_quality, icon = R.drawable.password_fill0) {
+                onNavigate(Destination.RequiredPasswordQuality)
+            }
         }
     }
     if(dialog != 0) {
@@ -205,8 +215,6 @@ enum class PasswordComplexity(val id: Int, val text: Int) {
     High(DevicePolicyManager.PASSWORD_COMPLEXITY_HIGH, R.string.high)
 }
 
-@Serializable object PasswordInfo
-
 @Composable
 fun PasswordInfoScreen(
     getComplexity: () -> PasswordComplexity, isSufficient: () -> Boolean, isUnified: () -> Boolean,
@@ -235,8 +243,6 @@ fun PasswordInfoScreen(
 }
 
 data class RpTokenState(val set: Boolean, val active: Boolean)
-
-@Serializable object ResetPasswordToken
 
 @RequiresApi(26)
 @Composable
@@ -303,8 +309,6 @@ fun ResetPasswordTokenScreen(
     }
 }
 
-@Serializable object ResetPassword
-
 @Composable
 fun ResetPasswordScreen(resetPassword: (String, String, Int) -> Boolean, onNavigateUp: () -> Unit) {
     val context = LocalContext.current
@@ -358,8 +362,6 @@ fun ResetPasswordScreen(resetPassword: (String, String, Int) -> Boolean, onNavig
     }
 }
 
-@Serializable object RequiredPasswordComplexity
-
 @RequiresApi(31)
 @Composable
 fun RequiredPasswordComplexityScreen(
@@ -408,8 +410,6 @@ enum class KeyguardDisableMode(val text: Int) {
 data class KeyguardDisableConfig(val mode: KeyguardDisableMode, val flags: Int)
 
 
-@Serializable object KeyguardDisabledFeatures
-
 @Composable
 fun KeyguardDisabledFeaturesScreen(
     getConfig: () -> KeyguardDisableConfig, setConfig: (KeyguardDisableConfig) -> Unit,
@@ -448,8 +448,6 @@ fun KeyguardDisabledFeaturesScreen(
         }
     }
 }
-
-@Serializable object RequiredPasswordQuality
 
 @Composable
 fun RequiredPasswordQualityScreen(onNavigateUp: () -> Unit) {

@@ -17,9 +17,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -31,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -48,14 +52,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.bintianqi.owndroid.HorizontalPadding
 import com.bintianqi.owndroid.R
 import com.bintianqi.owndroid.adaptiveInsets
+import com.bintianqi.owndroid.ui.screen.isValidPackageName
 import com.bintianqi.owndroid.zhCN
 
 @Composable
@@ -397,4 +405,26 @@ fun CircularProgressDialog(onDismiss: () -> Unit) {
             CircularProgressIndicator(Modifier.padding(16.dp))
         }
     }
+}
+
+@Composable
+fun PackageNameTextField(
+    value: String, onChoosePackage: () -> Unit,
+    modifier: Modifier = Modifier, onValueChange: (String) -> Unit
+) {
+    val fm = LocalFocusManager.current
+    OutlinedTextField(
+        value, onValueChange, Modifier
+            .fillMaxWidth()
+            .then(modifier),
+        label = { Text(stringResource(R.string.package_name)) },
+        trailingIcon = {
+            IconButton(onChoosePackage) {
+                Icon(Icons.AutoMirrored.Default.List, null)
+            }
+        },
+        isError = value.isNotEmpty() && !value.isValidPackageName,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done),
+        keyboardActions = KeyboardActions { fm.clearFocus() }
+    )
 }

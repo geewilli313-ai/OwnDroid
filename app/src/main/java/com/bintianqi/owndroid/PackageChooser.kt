@@ -63,9 +63,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.serialization.Serializable
 
 data class AppInfo(
     val name: String,
@@ -77,12 +77,10 @@ data class AppInfo(
 private fun searchInString(query: String, content: String)
     = query.split(' ').all { content.contains(it, true) }
 
-@Serializable data class ApplicationsList(val canSwitchView: Boolean, val multiSelect: Boolean)
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AppChooserScreen(
-    params: ApplicationsList, packageList: MutableStateFlow<List<AppInfo>>,
+    params: Destination.ApplicationsList, packageList: MutableStateFlow<List<AppInfo>>,
     refreshProgress: MutableStateFlow<Float>, onChoosePackage: (String?) -> Unit,
     onSwitchView: () -> Unit, onRefresh: () -> Unit,
     setPackagesSuspend: (List<String>, Boolean) -> Unit,

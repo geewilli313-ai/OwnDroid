@@ -60,57 +60,58 @@ import androidx.lifecycle.viewModelScope
 import com.bintianqi.owndroid.Privilege.DAR
 import com.bintianqi.owndroid.Privilege.DPM
 import com.bintianqi.owndroid.dpm.ACTIVATE_DEVICE_OWNER_COMMAND
-import com.bintianqi.owndroid.dpm.ApnAuthType
-import com.bintianqi.owndroid.dpm.ApnConfig
-import com.bintianqi.owndroid.dpm.ApnMvnoType
-import com.bintianqi.owndroid.dpm.ApnProtocol
-import com.bintianqi.owndroid.dpm.AppGroup
-import com.bintianqi.owndroid.dpm.AppRestriction
-import com.bintianqi.owndroid.dpm.AppStatus
-import com.bintianqi.owndroid.dpm.BasicAppGroup
-import com.bintianqi.owndroid.dpm.CaCertInfo
-import com.bintianqi.owndroid.dpm.CreateUserResult
-import com.bintianqi.owndroid.dpm.CreateWorkProfileOptions
 import com.bintianqi.owndroid.dpm.DelegatedAdmin
 import com.bintianqi.owndroid.dpm.DeviceAdmin
-import com.bintianqi.owndroid.dpm.FrpPolicyInfo
-import com.bintianqi.owndroid.dpm.HardwareProperties
-import com.bintianqi.owndroid.dpm.IntentFilterOptions
-import com.bintianqi.owndroid.dpm.IpMode
-import com.bintianqi.owndroid.dpm.KeyguardDisableConfig
-import com.bintianqi.owndroid.dpm.KeyguardDisableMode
-import com.bintianqi.owndroid.dpm.NetworkStatsData
-import com.bintianqi.owndroid.dpm.NetworkStatsTarget
-import com.bintianqi.owndroid.dpm.PasswordComplexity
-import com.bintianqi.owndroid.dpm.PendingSystemUpdateInfo
-import com.bintianqi.owndroid.dpm.PreferentialNetworkServiceInfo
-import com.bintianqi.owndroid.dpm.PrivateDnsConfiguration
-import com.bintianqi.owndroid.dpm.PrivateDnsMode
-import com.bintianqi.owndroid.dpm.ProxyMode
-import com.bintianqi.owndroid.dpm.ProxyType
-import com.bintianqi.owndroid.dpm.QueryNetworkStatsParams
-import com.bintianqi.owndroid.dpm.RecommendedProxyConf
-import com.bintianqi.owndroid.dpm.RpTokenState
-import com.bintianqi.owndroid.dpm.SsidPolicy
-import com.bintianqi.owndroid.dpm.SsidPolicyType
-import com.bintianqi.owndroid.dpm.SystemOptionsStatus
-import com.bintianqi.owndroid.dpm.SystemUpdatePolicyInfo
-import com.bintianqi.owndroid.dpm.UserIdentifier
-import com.bintianqi.owndroid.dpm.UserInformation
-import com.bintianqi.owndroid.dpm.UserOperationType
-import com.bintianqi.owndroid.dpm.WifiInfo
-import com.bintianqi.owndroid.dpm.WifiSecurity
-import com.bintianqi.owndroid.dpm.WifiStatus
-import com.bintianqi.owndroid.dpm.activateOrgProfileCommand
-import com.bintianqi.owndroid.dpm.delegatedScopesList
 import com.bintianqi.owndroid.dpm.doUserOperationWithContext
 import com.bintianqi.owndroid.dpm.getPackageInstaller
-import com.bintianqi.owndroid.dpm.globalSettings
 import com.bintianqi.owndroid.dpm.handlePrivilegeChange
 import com.bintianqi.owndroid.dpm.parsePackageInstallerMessage
 import com.bintianqi.owndroid.dpm.runtimePermissions
-import com.bintianqi.owndroid.dpm.secureSettings
-import com.bintianqi.owndroid.dpm.temperatureTypes
+import com.bintianqi.owndroid.ui.screen.ApnAuthType
+import com.bintianqi.owndroid.ui.screen.ApnConfig
+import com.bintianqi.owndroid.ui.screen.ApnMvnoType
+import com.bintianqi.owndroid.ui.screen.ApnProtocol
+import com.bintianqi.owndroid.ui.screen.AppGroup
+import com.bintianqi.owndroid.ui.screen.AppLockConfig
+import com.bintianqi.owndroid.ui.screen.AppRestriction
+import com.bintianqi.owndroid.ui.screen.AppStatus
+import com.bintianqi.owndroid.ui.screen.BasicAppGroup
+import com.bintianqi.owndroid.ui.screen.CaCertInfo
+import com.bintianqi.owndroid.ui.screen.CreateUserResult
+import com.bintianqi.owndroid.ui.screen.CreateWorkProfileOptions
+import com.bintianqi.owndroid.ui.screen.FrpPolicyInfo
+import com.bintianqi.owndroid.ui.screen.HardwareProperties
+import com.bintianqi.owndroid.ui.screen.IntentFilterOptions
+import com.bintianqi.owndroid.ui.screen.IpMode
+import com.bintianqi.owndroid.ui.screen.KeyguardDisableConfig
+import com.bintianqi.owndroid.ui.screen.KeyguardDisableMode
+import com.bintianqi.owndroid.ui.screen.NetworkStatsData
+import com.bintianqi.owndroid.ui.screen.NetworkStatsTarget
+import com.bintianqi.owndroid.ui.screen.PasswordComplexity
+import com.bintianqi.owndroid.ui.screen.PendingSystemUpdateInfo
+import com.bintianqi.owndroid.ui.screen.PreferentialNetworkServiceInfo
+import com.bintianqi.owndroid.ui.screen.PrivateDnsConfiguration
+import com.bintianqi.owndroid.ui.screen.PrivateDnsMode
+import com.bintianqi.owndroid.ui.screen.ProxyMode
+import com.bintianqi.owndroid.ui.screen.ProxyType
+import com.bintianqi.owndroid.ui.screen.QueryNetworkStatsParams
+import com.bintianqi.owndroid.ui.screen.RecommendedProxyConf
+import com.bintianqi.owndroid.ui.screen.RpTokenState
+import com.bintianqi.owndroid.ui.screen.SsidPolicy
+import com.bintianqi.owndroid.ui.screen.SsidPolicyType
+import com.bintianqi.owndroid.ui.screen.SystemOptionsStatus
+import com.bintianqi.owndroid.ui.screen.SystemUpdatePolicyInfo
+import com.bintianqi.owndroid.ui.screen.UserIdentifier
+import com.bintianqi.owndroid.ui.screen.UserInformation
+import com.bintianqi.owndroid.ui.screen.UserOperationType
+import com.bintianqi.owndroid.ui.screen.WifiInfo
+import com.bintianqi.owndroid.ui.screen.WifiSecurity
+import com.bintianqi.owndroid.ui.screen.WifiStatus
+import com.bintianqi.owndroid.ui.screen.activateOrgProfileCommand
+import com.bintianqi.owndroid.ui.screen.delegatedScopesList
+import com.bintianqi.owndroid.ui.screen.globalSettings
+import com.bintianqi.owndroid.ui.screen.secureSettings
+import com.bintianqi.owndroid.ui.screen.temperatureTypes
 import com.rosan.dhizuku.api.Dhizuku
 import com.rosan.dhizuku.api.DhizukuRequestPermissionListener
 import com.topjohnwu.superuser.Shell
@@ -159,7 +160,9 @@ class MyViewModel(application: Application): AndroidViewModel(application) {
     }
     fun getAppLockConfig(): AppLockConfig {
         val passwordHash = SP.lockPasswordHash
-        return AppLockConfig(passwordHash?.ifEmpty { null }, SP.biometricsUnlock, SP.lockWhenLeaving)
+        return AppLockConfig(
+            passwordHash?.ifEmpty { null }, SP.biometricsUnlock, SP.lockWhenLeaving
+        )
     }
     fun setAppLockConfig(config: AppLockConfig) {
         if (config.password == null) {

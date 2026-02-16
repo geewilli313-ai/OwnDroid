@@ -9,8 +9,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.bintianqi.owndroid.dpm.AppGroup
-import com.bintianqi.owndroid.dpm.IntentFilterOptions
+import com.bintianqi.owndroid.ui.screen.AppGroup
+import com.bintianqi.owndroid.ui.screen.IntentFilterOptions
 import com.bintianqi.owndroid.dpm.NetworkLog
 import com.bintianqi.owndroid.dpm.SecurityEvent
 import com.bintianqi.owndroid.dpm.SecurityEventWithData

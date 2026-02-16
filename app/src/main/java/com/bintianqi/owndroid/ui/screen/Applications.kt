@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import android.app.admin.DevicePolicyManager.PERMISSION_GRANT_STATE_DEFAULT
 import android.app.admin.DevicePolicyManager.PERMISSION_GRANT_STATE_DENIED
@@ -33,12 +33,10 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
@@ -99,12 +97,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -117,6 +113,8 @@ import com.bintianqi.owndroid.MyViewModel
 import com.bintianqi.owndroid.Privilege
 import com.bintianqi.owndroid.R
 import com.bintianqi.owndroid.adaptiveInsets
+import com.bintianqi.owndroid.dpm.PermissionItem
+import com.bintianqi.owndroid.dpm.runtimePermissions
 import com.bintianqi.owndroid.parsePackageNames
 import com.bintianqi.owndroid.showOperationResultToast
 import com.bintianqi.owndroid.ui.FullWidthRadioButtonItem
@@ -126,7 +124,9 @@ import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.MySmallTitleScaffold
 import com.bintianqi.owndroid.ui.NavIcon
 import com.bintianqi.owndroid.ui.Notes
+import com.bintianqi.owndroid.ui.PackageNameTextField
 import com.bintianqi.owndroid.ui.SwitchItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -166,33 +166,11 @@ fun LazyItemScope.ApplicationItem(info: AppInfo, onClear: () -> Unit) {
     }
 }
 
-@Composable
-fun PackageNameTextField(
-    value: String, onChoosePackage: () -> Unit,
-    modifier: Modifier = Modifier, onValueChange: (String) -> Unit
-) {
-    val fm = LocalFocusManager.current
-    OutlinedTextField(
-        value, onValueChange, Modifier
-            .fillMaxWidth()
-            .then(modifier),
-        label = { Text(stringResource(R.string.package_name)) },
-        trailingIcon = {
-            IconButton(onChoosePackage) {
-                Icon(Icons.AutoMirrored.Default.List, null)
-            }
-        },
-        isError = value.isNotEmpty() && !value.isValidPackageName,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions { fm.clearFocus() }
-    )
-}
-
-@Serializable object ApplicationsFeatures
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ApplicationsFeaturesScreen(onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit, onSwitchView: () -> Unit) {
+fun ApplicationsFeaturesScreen(
+    onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit, onSwitchView: () -> Unit
+) {
     val context = LocalContext.current
     val sb = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -219,55 +197,81 @@ fun ApplicationsFeaturesScreen(onNavigateUp: () -> Unit, onNavigate: (Any) -> Un
                 .padding(bottom = 80.dp)
         ) {
             val privilege by Privilege.status.collectAsStateWithLifecycle()
-            if(VERSION.SDK_INT >= 24) FunctionItem(R.string.suspend, icon = R.drawable.block_fill0) { onNavigate(Suspend) }
-            FunctionItem(R.string.hide, icon = R.drawable.visibility_off_fill0) { onNavigate(Hide) }
-            FunctionItem(R.string.block_uninstall, icon = R.drawable.delete_forever_fill0) { onNavigate(BlockUninstall) }
+            if(VERSION.SDK_INT >= 24) FunctionItem(R.string.suspend, icon = R.drawable.block_fill0) {
+                onNavigate(Destination.Suspend)
+            }
+            FunctionItem(R.string.hide, icon = R.drawable.visibility_off_fill0) {
+                onNavigate(Destination.Hide)
+            }
+            FunctionItem(R.string.block_uninstall, icon = R.drawable.delete_forever_fill0) {
+                onNavigate(Destination.BlockUninstall)
+            }
             if(VERSION.SDK_INT >= 30 && (privilege.device || (VERSION.SDK_INT >= 33 && privilege.profile))) {
-                FunctionItem(R.string.disable_user_control, icon = R.drawable.do_not_touch_fill0) { onNavigate(DisableUserControl) }
+                FunctionItem(R.string.disable_user_control, icon = R.drawable.do_not_touch_fill0) {
+                    onNavigate(Destination.DisableUserControl)
+                }
             }
             FunctionItem(R.string.permissions, icon = R.drawable.shield_fill0) {
-                onNavigate(PermissionManager)
+                onNavigate(Destination.PermissionManager)
             }
             if(VERSION.SDK_INT >= 28) {
-                FunctionItem(R.string.disable_metered_data, icon = R.drawable.money_off_fill0) { onNavigate(DisableMeteredData) }
+                FunctionItem(R.string.disable_metered_data, icon = R.drawable.money_off_fill0) {
+                    onNavigate(Destination.DisableMeteredData)
+                }
             }
             if(VERSION.SDK_INT >= 28) {
-                FunctionItem(R.string.clear_app_storage, icon = R.drawable.mop_fill0) { onNavigate(ClearAppStorage) }
+                FunctionItem(R.string.clear_app_storage, icon = R.drawable.mop_fill0) {
+                    onNavigate(Destination.ClearAppStorage)
+                }
             }
             FunctionItem(R.string.install_app, icon = R.drawable.install_mobile_fill0) {
                 context.startActivity(Intent(context, AppInstallerActivity::class.java))
             }
-            FunctionItem(R.string.uninstall_app, icon = R.drawable.delete_fill0) { onNavigate(UninstallApp) }
+            FunctionItem(R.string.uninstall_app, icon = R.drawable.delete_fill0) {
+                onNavigate(Destination.UninstallApp)
+            }
             if(VERSION.SDK_INT >= 28 && privilege.device) {
-                FunctionItem(R.string.keep_uninstalled_packages, icon = R.drawable.delete_fill0) { onNavigate(KeepUninstalledPackages) }
+                FunctionItem(R.string.keep_uninstalled_packages, icon = R.drawable.delete_fill0) {
+                    onNavigate(Destination.KeepUninstalledPackages)
+                }
             }
             if (VERSION.SDK_INT >= 28 && (privilege.device || (privilege.profile && privilege.affiliated))) {
                 FunctionItem(R.string.install_existing_app, icon = R.drawable.install_mobile_fill0) {
-                    onNavigate(InstallExistingApp)
+                    onNavigate(Destination.InstallExistingApp)
                 }
             }
             if(VERSION.SDK_INT >= 30 && privilege.work) {
-                FunctionItem(R.string.cross_profile_apps, icon = R.drawable.work_fill0) { onNavigate(CrossProfilePackages) }
+                FunctionItem(R.string.cross_profile_apps, icon = R.drawable.work_fill0) {
+                    onNavigate(Destination.CrossProfilePackages)
+                }
             }
             if(privilege.work) {
-                FunctionItem(R.string.cross_profile_widget, icon = R.drawable.widgets_fill0) { onNavigate(CrossProfileWidgetProviders) }
+                FunctionItem(R.string.cross_profile_widget, icon = R.drawable.widgets_fill0) {
+                    onNavigate(Destination.CrossProfileWidgetProviders)
+                }
             }
             if(VERSION.SDK_INT >= 34 && privilege.device) {
-                FunctionItem(R.string.credential_manager_policy, icon = R.drawable.license_fill0) { onNavigate(CredentialManagerPolicy) }
+                FunctionItem(R.string.credential_manager_policy, icon = R.drawable.license_fill0) {
+                    onNavigate(Destination.CredentialManagerPolicy)
+                }
             }
             FunctionItem(R.string.permitted_accessibility_services, icon = R.drawable.settings_accessibility_fill0) {
-                onNavigate(PermittedAccessibilityServices)
+                onNavigate(Destination.PermittedAccessibilityServices)
             }
-            FunctionItem(R.string.permitted_ime, icon = R.drawable.keyboard_fill0) { onNavigate(PermittedInputMethods) }
-            FunctionItem(R.string.enable_system_app, icon = R.drawable.enable_fill0) { onNavigate(EnableSystemApp) }
+            FunctionItem(R.string.permitted_ime, icon = R.drawable.keyboard_fill0) {
+                onNavigate(Destination.PermittedInputMethods)
+            }
+            FunctionItem(R.string.enable_system_app, icon = R.drawable.enable_fill0) {
+                onNavigate(Destination.EnableSystemApp)
+            }
             if(VERSION.SDK_INT >= 34 && (privilege.device || privilege.work)) {
-                FunctionItem(R.string.set_default_dialer, icon = R.drawable.call_fill0) { onNavigate(SetDefaultDialer) }
+                FunctionItem(R.string.set_default_dialer, icon = R.drawable.call_fill0) {
+                    onNavigate(Destination.SetDefaultDialer)
+                }
             }
         }
     }
 }
-
-@Serializable data class ApplicationDetails(val packageName: String)
 
 data class AppStatus(
     val suspend: Boolean,
@@ -280,7 +284,8 @@ data class AppStatus(
 
 @Composable
 fun ApplicationDetailsScreen(
-    param: ApplicationDetails, vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit
+    param: Destination.ApplicationDetails, vm: MyViewModel, onNavigateUp: () -> Unit,
+    onNavigate: (Destination) -> Unit
 ) {
     val packageName = param.packageName
     val privilege by Privilege.status.collectAsStateWithLifecycle()
@@ -302,7 +307,9 @@ fun ApplicationDetailsScreen(
                 .alpha(0.7F)
                 .padding(bottom = 8.dp), style = typography.bodyMedium)
         }
-        FunctionItem(R.string.permissions, icon = R.drawable.shield_fill0) { onNavigate(AppPermissionsManager(packageName)) }
+        FunctionItem(R.string.permissions, icon = R.drawable.shield_fill0) {
+            onNavigate(Destination.AppPermissionsManager(packageName))
+        }
         if(VERSION.SDK_INT >= 24) SwitchItem(
             R.string.suspend, icon = R.drawable.block_fill0, state = status.suspend,
             onCheckedChange = { vm.adSetPackageSuspended(packageName, it) }
@@ -334,7 +341,7 @@ fun ApplicationDetailsScreen(
         )
         if (appRestrictions.isNotEmpty()) {
             FunctionItem(R.string.managed_configuration, icon = R.drawable.description_fill0) {
-                onNavigate(ManagedConfiguration(packageName))
+                onNavigate(Destination.ManagedConfiguration(packageName))
             }
         }
         if(VERSION.SDK_INT >= 28) FunctionItem(R.string.clear_app_storage, icon = R.drawable.mop_fill0) { dialog = 1 }
@@ -349,21 +356,11 @@ fun ApplicationDetailsScreen(
     }
 }
 
-@Serializable object Suspend
-
-@Serializable object Hide
-
-@Serializable object BlockUninstall
-
-@Serializable object DisableUserControl
-
-@Serializable data class AppPermissionsManager(val packageName: String)
-
 @Composable
 fun AppPermissionsManagerScreen(
     getPackagePermissions: (String) -> Map<String, Int>,
     setPackagePermission: (String, String, Int) -> Boolean, onNavigateUp: () -> Unit,
-    param: AppPermissionsManager
+    param: Destination.AppPermissionsManager
 ) {
     val context = LocalContext.current
     val privilege by Privilege.status.collectAsStateWithLifecycle()
@@ -453,10 +450,10 @@ fun PackagePermissionDialog(
     )
 }
 
-@Serializable object PermissionManager
-
 @Composable
-fun PermissionManagerScreen(onNavigate: (PermissionDetail) -> Unit, onNavigateUp: () -> Unit) {
+fun PermissionManagerScreen(
+    onNavigate: (Destination.PermissionDetail) -> Unit, onNavigateUp: () -> Unit
+) {
     MyLazyScaffold(R.string.permissions, onNavigateUp) {
         items(runtimePermissions) {
             Row(
@@ -464,7 +461,7 @@ fun PermissionManagerScreen(onNavigate: (PermissionDetail) -> Unit, onNavigateUp
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable {
-                        onNavigate(PermissionDetail(it.id))
+                        onNavigate(Destination.PermissionDetail(it.id))
                     }
                     .padding(8.dp, 12.dp)
             ) {
@@ -478,12 +475,10 @@ fun PermissionManagerScreen(onNavigate: (PermissionDetail) -> Unit, onNavigateUp
     }
 }
 
-@Serializable class PermissionDetail(val permission: String)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PermissionDetailScreen(
-    param: PermissionDetail, getPermissionPackages: (String) -> List<Pair<AppInfo, Int>>,
+    param: Destination.PermissionDetail, getPermissionPackages: (String) -> List<Pair<AppInfo, Int>>,
     setPackagePermission: (String, String, Int) -> Boolean, onNavigateUp: () -> Unit
 ) {
     val context = LocalContext.current
@@ -586,10 +581,6 @@ fun PermissionDetailScreen(
     ) { selectedPackage = null }
 }
 
-@Serializable object DisableMeteredData
-
-@Serializable object ClearAppStorage
-
 @RequiresApi(28)
 @Composable
 fun ClearAppStorageScreen(
@@ -652,8 +643,6 @@ private fun ClearAppStorageDialog(
         properties = DialogProperties(false, false)
     )
 }
-
-@Serializable object UninstallApp
 
 @Composable
 fun UninstallAppScreen(
@@ -722,10 +711,6 @@ private fun UninstallAppDialog(
     )
 }
 
-@Serializable object KeepUninstalledPackages
-
-@Serializable object InstallExistingApp
-
 @RequiresApi(28)
 @Composable
 fun InstallExistingAppScreen(
@@ -751,12 +736,6 @@ fun InstallExistingAppScreen(
         Notes(R.string.info_install_existing_app)
     }
 }
-
-@Serializable object CrossProfilePackages
-
-@Serializable object CrossProfileWidgetProviders
-
-@Serializable object CredentialManagerPolicy
 
 @RequiresApi(34)
 @Composable
@@ -819,10 +798,6 @@ fun CredentialManagerPolicyScreen(
     }
 }
 
-@Serializable object PermittedAccessibilityServices
-
-@Serializable object PermittedInputMethods
-
 @Composable
 fun PermittedAsAndImPackages(
     title: Int, note: Int, chosenPackage: Channel<String>, onChoosePackage: () -> Unit,
@@ -879,8 +854,6 @@ fun PermittedAsAndImPackages(
     }
 }
 
-@Serializable object EnableSystemApp
-
 @Composable
 fun EnableSystemAppScreen(
     chosenPackage: Channel<String>, onChoosePackage: () -> Unit,
@@ -909,8 +882,6 @@ fun EnableSystemAppScreen(
         Notes(R.string.info_enable_system_app)
     }
 }
-
-@Serializable object SetDefaultDialer
 
 @RequiresApi(34)
 @Composable
@@ -1072,8 +1043,6 @@ class AppGroup(
     val id: Int, override val name: String, override val apps: List<String>
 ) : BasicAppGroup(name, apps)
 
-@Serializable object ManageAppGroups
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManageAppGroupsScreen(
@@ -1158,12 +1127,10 @@ fun ManageAppGroupsScreen(
     }
 }
 
-@Serializable class EditAppGroup(val id: Int?, val name: String, val apps: List<String>)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditAppGroupScreen(
-    params: EditAppGroup, getAppInfo: (String) -> AppInfo, navigateUp: () -> Unit,
+    params: Destination.EditAppGroup, getAppInfo: (String) -> AppInfo, navigateUp: () -> Unit,
     setGroup: (Int?, String, List<String>) -> Unit, deleteGroup: (Int) -> Unit,
     onChoosePackage: () -> Unit, chosenPackage: Channel<String>
 ) {
@@ -1239,12 +1206,10 @@ fun EditAppGroupScreen(
     }
 }
 
-@Serializable class ManagedConfiguration(val packageName: String)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ManagedConfigurationScreen(
-    params: ManagedConfiguration, appRestrictions: StateFlow<List<AppRestriction>>,
+    params: Destination.ManagedConfiguration, appRestrictions: StateFlow<List<AppRestriction>>,
     setRestriction: (String, AppRestriction) -> Unit, clearRestriction: (String) -> Unit,
     navigateUp: () -> Unit
 ) {

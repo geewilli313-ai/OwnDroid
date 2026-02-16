@@ -2,7 +2,7 @@ package com.bintianqi.owndroid
 
 import android.os.Build
 import android.os.UserManager
-import com.bintianqi.owndroid.dpm.Restriction
+import com.bintianqi.owndroid.ui.screen.Restriction
 
 @Suppress("InlinedApi")
 object UserRestrictionsRepository {

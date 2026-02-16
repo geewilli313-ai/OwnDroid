@@ -3,7 +3,7 @@ package com.bintianqi.owndroid
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
-import com.bintianqi.owndroid.dpm.UserOperationType
+import com.bintianqi.owndroid.ui.screen.UserOperationType
 import com.bintianqi.owndroid.dpm.doUserOperationWithContext
 
 class ShortcutsReceiverActivity : Activity() {

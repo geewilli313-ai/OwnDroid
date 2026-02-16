@@ -7,6 +7,7 @@ import android.app.admin.DevicePolicyManager
 import android.app.admin.DnsEvent
 import android.app.admin.IDevicePolicyManager
 import android.app.admin.SecurityLog
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.IPackageInstaller
@@ -16,6 +17,7 @@ import android.os.UserHandle
 import android.os.UserManager
 import android.util.Log
 import androidx.annotation.RequiresApi
+import com.bintianqi.owndroid.AppInfo
 import com.bintianqi.owndroid.MyApplication
 import com.bintianqi.owndroid.NotificationType
 import com.bintianqi.owndroid.NotificationUtils
@@ -25,6 +27,7 @@ import com.bintianqi.owndroid.Privilege.DPM
 import com.bintianqi.owndroid.R
 import com.bintianqi.owndroid.SP
 import com.bintianqi.owndroid.ShortcutUtils
+import com.bintianqi.owndroid.ui.screen.UserOperationType
 import com.rosan.dhizuku.api.Dhizuku
 import com.rosan.dhizuku.api.DhizukuBinderWrapper
 import kotlinx.coroutines.CoroutineScope
@@ -589,3 +592,9 @@ fun doUserOperationWithContext(
         UserOperationType.Delete -> DPM.removeUser(DAR, handle)
     }
 }
+
+const val ACTIVATE_DEVICE_OWNER_COMMAND = "dpm set-device-owner com.bintianqi.owndroid/.Receiver"
+
+data class DelegatedAdmin(val app: AppInfo, val scopes: List<String>)
+
+data class DeviceAdmin(val app: AppInfo, val admin: ComponentName)

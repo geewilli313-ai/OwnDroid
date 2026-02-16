@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid
+package com.bintianqi.owndroid.ui.screen
 
 import android.content.Context
 import android.content.Intent
@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -54,23 +55,31 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bintianqi.owndroid.BottomPadding
+import com.bintianqi.owndroid.MyNotificationChannel
+import com.bintianqi.owndroid.NotificationType
+import com.bintianqi.owndroid.Privilege
+import com.bintianqi.owndroid.R
+import com.bintianqi.owndroid.ThemeSettings
+import com.bintianqi.owndroid.adaptiveInsets
+import com.bintianqi.owndroid.exportLogs
+import com.bintianqi.owndroid.generateBase64Key
+import com.bintianqi.owndroid.showOperationResultToast
 import com.bintianqi.owndroid.ui.FunctionItem
 import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.NavIcon
 import com.bintianqi.owndroid.ui.Notes
 import com.bintianqi.owndroid.ui.SwitchItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.system.exitProcess
 
-@Serializable object Settings
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit) {
+fun SettingsScreen(onNavigate: (Destination) -> Unit, onNavigateUp: () -> Unit) {
     val context = LocalContext.current
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     val exportLogsLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) {
@@ -120,21 +129,33 @@ fun SettingsScreen(onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit) {
                 .fillMaxSize()
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(bottom = 80.dp)
         ) {
-            FunctionItem(title = R.string.options, icon = R.drawable.tune_fill0) { onNavigate(SettingsOptions) }
-            FunctionItem(title = R.string.appearance, icon = R.drawable.format_paint_fill0) { onNavigate(Appearance) }
-            FunctionItem(R.string.app_lock, icon = R.drawable.lock_fill0) { onNavigate(AppLockSettings) }
-            if (privilege.device || privilege.profile)
-                FunctionItem(title = R.string.api, icon = R.drawable.code_fill0) { onNavigate(ApiSettings) }
-            if (privilege.device && !privilege.dhizuku)
-                FunctionItem(R.string.notifications, icon = R.drawable.notifications_fill0) { onNavigate(Notifications) }
-            FunctionItem(title = R.string.about, icon = R.drawable.info_fill0) { onNavigate(About) }
+            FunctionItem(R.string.options, icon = R.drawable.tune_fill0) {
+                onNavigate(Destination.SettingsOptions)
+            }
+            FunctionItem(R.string.appearance, icon = R.drawable.format_paint_fill0) {
+                onNavigate(Destination.AppearanceSettings)
+            }
+            FunctionItem(R.string.app_lock, icon = R.drawable.lock_fill0) {
+                onNavigate(Destination.AppLockSettings)
+            }
+            if (privilege.device || privilege.profile) {
+                FunctionItem(R.string.api, icon = R.drawable.code_fill0) {
+                    onNavigate(Destination.ApiSettings)
+                }
+            }
+            if (privilege.device && !privilege.dhizuku) {
+                FunctionItem(R.string.notifications, icon = R.drawable.notifications_fill0) {
+                    onNavigate(Destination.NotificationSettings)
+                }
+            }
+            FunctionItem(R.string.about, icon = R.drawable.info_fill0) {
+                onNavigate(Destination.About)
+            }
+            Spacer(Modifier.height(BottomPadding))
         }
     }
 }
-
-@Serializable object SettingsOptions
 
 @Composable
 fun SettingsOptionsScreen(
@@ -159,8 +180,6 @@ fun SettingsOptionsScreen(
         )
     }
 }
-
-@Serializable object Appearance
 
 @Composable
 fun AppearanceScreen(
@@ -225,8 +244,6 @@ data class AppLockConfig(
     val password: String?, val biometrics: Boolean, val whenLeaving: Boolean
 )
 
-@Serializable object AppLockSettings
-
 @Composable
 fun AppLockSettingsScreen(
     config: AppLockConfig, setConfig: (AppLockConfig) -> Unit,
@@ -286,8 +303,6 @@ fun AppLockSettingsScreen(
     }
 }
 
-@Serializable object ApiSettings
-
 @Composable
 fun ApiSettings(
     getEnabled: () -> Boolean, setKey: (String) -> Unit, onNavigateUp: () -> Unit
@@ -326,8 +341,6 @@ fun ApiSettings(
     }
 }
 
-@Serializable object Notifications
-
 @Composable
 fun NotificationsScreen(
     enabledNotifications: StateFlow<List<Int>>, getState: () -> Unit,
@@ -343,8 +356,6 @@ fun NotificationsScreen(
         SwitchItem(type.text, type.id in notifications, { setNotification(type, it) })
     }
 }
-
-@Serializable object About
 
 @Composable
 fun AboutScreen(onNavigateUp: () -> Unit) {

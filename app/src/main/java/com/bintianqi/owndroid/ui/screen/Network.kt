@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -128,7 +128,9 @@ import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.MySmallTitleScaffold
 import com.bintianqi.owndroid.ui.NavIcon
 import com.bintianqi.owndroid.ui.Notes
+import com.bintianqi.owndroid.ui.PackageNameTextField
 import com.bintianqi.owndroid.ui.SwitchItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.bintianqi.owndroid.writeClipBoard
 import com.bintianqi.owndroid.yesOrNo
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -142,43 +144,57 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-@Serializable object Network
-
 @Composable
-fun NetworkScreen(onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit) {
+fun NetworkScreen(onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit) {
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     MyScaffold(R.string.network, onNavigateUp, 0.dp) {
-        if(!privilege.dhizuku) FunctionItem(R.string.wifi, icon = R.drawable.wifi_fill0) { onNavigate(WiFi) }
+        if(!privilege.dhizuku) FunctionItem(R.string.wifi, icon = R.drawable.wifi_fill0) {
+            onNavigate(Destination.WiFi)
+        }
         if(VERSION.SDK_INT >= 30) {
-            FunctionItem(R.string.options, icon = R.drawable.tune_fill0) { onNavigate(NetworkOptions) }
+            FunctionItem(R.string.options, icon = R.drawable.tune_fill0) {
+                onNavigate(Destination.NetworkOptions)
+            }
         }
         if (!privilege.dhizuku)
-            FunctionItem(R.string.network_stats, icon = R.drawable.query_stats_fill0) { onNavigate(QueryNetworkStats) }
+            FunctionItem(R.string.network_stats, icon = R.drawable.query_stats_fill0) {
+                onNavigate(Destination.NetworkStats)
+            }
         if(VERSION.SDK_INT >= 29 && privilege.device) {
-            FunctionItem(R.string.private_dns, icon = R.drawable.dns_fill0) { onNavigate(PrivateDns) }
+            FunctionItem(R.string.private_dns, icon = R.drawable.dns_fill0) {
+                onNavigate(Destination.PrivateDns)
+            }
         }
         if(VERSION.SDK_INT >= 24) {
-            FunctionItem(R.string.always_on_vpn, icon = R.drawable.vpn_key_fill0) { onNavigate(AlwaysOnVpnPackage) }
+            FunctionItem(R.string.always_on_vpn, icon = R.drawable.vpn_key_fill0) {
+                onNavigate(Destination.AlwaysOnVpnPackage)
+            }
         }
         if(privilege.device) {
-            FunctionItem(R.string.recommended_global_proxy, icon = R.drawable.vpn_key_fill0) { onNavigate(RecommendedGlobalProxy) }
+            FunctionItem(R.string.recommended_global_proxy, icon = R.drawable.vpn_key_fill0) {
+                onNavigate(Destination.RecommendedGlobalProxy)
+            }
         }
         if(VERSION.SDK_INT >= 26 && !privilege.dhizuku && (privilege.device || privilege.work)) {
-            FunctionItem(R.string.network_logging, icon = R.drawable.description_fill0) { onNavigate(NetworkLogging) }
+            FunctionItem(R.string.network_logging, icon = R.drawable.description_fill0) {
+                onNavigate(Destination.NetworkLogging)
+            }
         }
         /*if(VERSION.SDK_INT >= 31) {
-            FunctionItem(R.string.wifi_auth_keypair, icon = R.drawable.key_fill0) { onNavigate(WifiAuthKeypair) }
+            FunctionItem(R.string.wifi_auth_keypair, icon = R.drawable.key_fill0) { onNavigate(Destination.WifiAuthKeypair) }
         }*/
         if (VERSION.SDK_INT >= 33 && (privilege.work || privilege.device)) {
-            FunctionItem(R.string.preferential_network_service, icon = R.drawable.globe_fill0) { onNavigate(PreferentialNetworkService) }
+            FunctionItem(R.string.preferential_network_service, icon = R.drawable.globe_fill0) {
+                onNavigate(Destination.PreferentialNetworkService)
+            }
         }
         if(VERSION.SDK_INT >= 28 && privilege.device) {
-            FunctionItem(R.string.override_apn, icon = R.drawable.cell_tower_fill0) { onNavigate(OverrideApn) }
+            FunctionItem(R.string.override_apn, icon = R.drawable.cell_tower_fill0) {
+                onNavigate(Destination.OverrideApn)
+            }
         }
     }
 }
-
-@Serializable object NetworkOptions
 
 @Composable
 fun NetworkOptionsScreen(
@@ -208,12 +224,10 @@ fun NetworkOptionsScreen(
     )
 }
 
-@Serializable object WiFi
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WifiScreen(
-    vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit,
+    vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit,
     editNetwork: (Int) -> Unit
 ) {
     val coroutine = rememberCoroutineScope()
@@ -266,7 +280,7 @@ fun WifiScreen(
 @Composable
 fun WifiOverviewScreen(
     setWifiEnabled: (Boolean) -> Boolean, disconnect: () -> Boolean, reconnect: () -> Boolean,
-    getMac: () -> String?, navigate: (Any) -> Unit
+    getMac: () -> String?, navigate: (Destination) -> Unit
 ) {
     val context = LocalContext.current
     val privilege by Privilege.status.collectAsStateWithLifecycle()
@@ -305,8 +319,12 @@ fun WifiOverviewScreen(
             FunctionItem(R.string.wifi_mac_address) { macDialog = true }
         }
         if(VERSION.SDK_INT >= 33 && (privilege.device || privilege.org)) {
-            FunctionItem(R.string.min_wifi_security_level) { navigate(WifiSecurityLevel) }
-            FunctionItem(R.string.wifi_ssid_policy) { navigate(WifiSsidPolicyScreen) }
+            FunctionItem(R.string.min_wifi_security_level) {
+                navigate(Destination.WifiSecurityLevel)
+            }
+            FunctionItem(R.string.wifi_ssid_policy) {
+                navigate(Destination.WifiSsidPolicy)
+            }
         }
     }
     if (macDialog && VERSION.SDK_INT >= 24) {
@@ -502,9 +520,6 @@ private fun SavedNetworks(
         onDismissRequest = { dialog = -1 }
     )
 }
-
-@Serializable
-data class UpdateNetwork(val index: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -813,8 +828,6 @@ private fun AddNetworkScreen(
     }
 }
 
-@Serializable object WifiSecurityLevel
-
 @RequiresApi(33)
 @Composable
 fun WifiSecurityLevelScreen(
@@ -848,8 +861,6 @@ enum class SsidPolicyType(val id: Int, val text: Int) {
     Whitelist(WifiSsidPolicy.WIFI_SSID_POLICY_TYPE_ALLOWLIST, R.string.whitelist),
     Blacklist(WifiSsidPolicy.WIFI_SSID_POLICY_TYPE_DENYLIST, R.string.blacklist)
 }
-
-@Serializable object WifiSsidPolicyScreen
 
 @RequiresApi(33)
 @Composable
@@ -947,8 +958,6 @@ data class QueryNetworkStatsParams(
     val type: NetworkStatsType, val target: NetworkStatsTarget, val networkType: NetworkType,
     val startTime: Long, val endTime: Long, val uid: Int, val tag: Int, val state: NetworkStatsState
 )
-
-@Serializable object QueryNetworkStats
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1266,8 +1275,6 @@ data class NetworkStatsData(
     val metered: Int?
 )
 
-@Serializable object NetworkStatsViewer
-
 @Composable
 fun NetworkStatsViewerScreen(
     data: List<NetworkStatsData>, clearData: () -> Unit, onNavigateUp: () -> Unit
@@ -1372,8 +1379,6 @@ enum class PrivateDnsMode(val id: Int, val text: Int) {
 
 data class PrivateDnsConfiguration(val mode: PrivateDnsMode?, val host: String)
 
-@Serializable object PrivateDns
-
 @RequiresApi(29)
 @Composable
 fun PrivateDnsScreen(
@@ -1412,8 +1417,6 @@ fun PrivateDnsScreen(
         }
     }
 }
-
-@Serializable object AlwaysOnVpnPackage
 
 @RequiresApi(24)
 @Composable
@@ -1463,8 +1466,6 @@ data class RecommendedProxyConf(
     val type: ProxyType, val url: String, val host: String, val specifyPort: Boolean,
     val port: Int, val exclude: List<String>
 )
-
-@Serializable object RecommendedGlobalProxy
 
 @Composable
 fun RecommendedGlobalProxyScreen(
@@ -1537,8 +1538,6 @@ fun RecommendedGlobalProxyScreen(
         Notes(R.string.info_recommended_global_proxy, HorizontalPadding)
     }
 }
-
-@Serializable object NetworkLogging
 
 @RequiresApi(26)
 @Composable
@@ -1620,14 +1619,12 @@ fun NetworkLoggingScreen(
     )
 }
 
-@Serializable object PreferentialNetworkService
-
 @RequiresApi(33)
 @Composable
 fun PreferentialNetworkServiceScreen(
     getEnabled: () -> Boolean, setEnabled: (Boolean) -> Unit,
     pnsConfigs: StateFlow<List<PreferentialNetworkServiceInfo>>, getConfigs: () -> Unit,
-    onNavigateUp: () -> Unit, onNavigate: (AddPreferentialNetworkServiceConfig) -> Unit
+    onNavigateUp: () -> Unit, onNavigate: (Destination.AddPreferentialNetworkServiceConfig) -> Unit
 ) {
     var masterEnabled by rememberSaveable { mutableStateOf(getEnabled()) }
     val configs by pnsConfigs.collectAsStateWithLifecycle()
@@ -1647,7 +1644,7 @@ fun PreferentialNetworkServiceScreen(
             ) {
                 Text(config.id.toString())
                 IconButton({
-                    onNavigate(AddPreferentialNetworkServiceConfig(index))
+                    onNavigate(Destination.AddPreferentialNetworkServiceConfig(index))
                 }) {
                     Icon(Icons.Default.Edit, stringResource(R.string.edit))
                 }
@@ -1656,7 +1653,7 @@ fun PreferentialNetworkServiceScreen(
         Row(
             Modifier.fillMaxWidth()
                 .padding(top = 4.dp)
-                .clickable { onNavigate(AddPreferentialNetworkServiceConfig(-1)) }
+                .clickable { onNavigate(Destination.AddPreferentialNetworkServiceConfig(-1)) }
                 .padding(horizontal = 8.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -1674,9 +1671,6 @@ data class PreferentialNetworkServiceInfo(
     val excludedUids: List<Int> = emptyList(),
     val includedUids: List<Int> = emptyList()
 )
-
-@Serializable
-data class AddPreferentialNetworkServiceConfig(val index: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(33)
@@ -1768,8 +1762,6 @@ fun AddPreferentialNetworkServiceConfigScreen(
         }
     }
 }
-
-@Serializable object OverrideApn
 
 @RequiresApi(28)
 @Composable
@@ -1900,8 +1892,6 @@ data class ApnConfig(
     val mtuV4: Int?, val mtuV6: Int?, val mvno: ApnMvnoType, val operatorNumeric: String,
     val persistent: Boolean, val alwaysOn: Boolean, val id: Int = -1
 )
-
-@Serializable data class AddApnSetting(val index: Int)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(28)

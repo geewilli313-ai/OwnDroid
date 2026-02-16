@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -63,6 +63,7 @@ import com.bintianqi.owndroid.showOperationResultToast
 import com.bintianqi.owndroid.ui.FunctionItem
 import com.bintianqi.owndroid.ui.MyLazyScaffold
 import com.bintianqi.owndroid.ui.NavIcon
+import com.bintianqi.owndroid.ui.navigation.Destination
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
@@ -74,13 +75,11 @@ data class Restriction(
     val requiresApi: Int = 0
 )
 
-@Serializable object UserRestriction
-
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(24)
 @Composable
 fun UserRestrictionScreen(
-    getRestrictions: () -> Unit,onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit
+    getRestrictions: () -> Unit,onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit
 ) {
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     val sb = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -92,7 +91,7 @@ fun UserRestrictionScreen(
                 { Text(stringResource(R.string.user_restriction)) },
                 navigationIcon = { NavIcon(onNavigateUp) },
                 actions = {
-                    IconButton({ onNavigate(UserRestrictionEditor) }) {
+                    IconButton({ onNavigate(Destination.UserRestrictionEditor) }) {
                         Icon(Icons.Default.Edit, null)
                     }
                 },
@@ -119,7 +118,7 @@ fun UserRestrictionScreen(
             Spacer(Modifier.padding(vertical = 2.dp))
             UserRestrictionCategory.entries.forEach {
                 FunctionItem(it.title, icon = it.icon) {
-                    onNavigate(UserRestrictionOptions(it.name))
+                    onNavigate(Destination.UserRestrictionOptions(it.name))
                 }
             }
             Row(
@@ -137,13 +136,10 @@ fun UserRestrictionScreen(
     }
 }
 
-@Serializable
-data class UserRestrictionOptions(val id: String)
-
 @RequiresApi(24)
 @Composable
 fun UserRestrictionOptionsScreen(
-    args: UserRestrictionOptions, userRestrictions: StateFlow<Map<String, Boolean>>,
+    args: Destination.UserRestrictionOptions, userRestrictions: StateFlow<Map<String, Boolean>>,
     setRestriction: (String, Boolean) -> Boolean, setShortcut: (String) -> Boolean,
     onNavigateUp: () -> Unit
 ) {
@@ -187,8 +183,6 @@ fun UserRestrictionOptionsScreen(
         }
     }
 }
-
-@Serializable object UserRestrictionEditor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(24)

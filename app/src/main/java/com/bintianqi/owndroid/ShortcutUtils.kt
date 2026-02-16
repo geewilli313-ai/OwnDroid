@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
-import com.bintianqi.owndroid.dpm.UserOperationType
+import com.bintianqi.owndroid.ui.screen.UserOperationType
 
 object ShortcutUtils {
     fun setAllShortcuts(context: Context, enabled: Boolean) {

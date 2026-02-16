@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import android.app.admin.DevicePolicyManager
 import android.graphics.Bitmap
@@ -77,15 +77,13 @@ import com.bintianqi.owndroid.ui.ListItem
 import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.Notes
 import com.bintianqi.owndroid.ui.SwitchItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.bintianqi.owndroid.uriToStream
 import com.bintianqi.owndroid.yesOrNo
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.serialization.Serializable
-
-@Serializable object Users
 
 @Composable
-fun UsersScreen(vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit) {
+fun UsersScreen(vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit) {
     val context = LocalContext.current
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     /** 1: logout */
@@ -94,17 +92,27 @@ fun UsersScreen(vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Any) -> 
         if(VERSION.SDK_INT >= 28 && privilege.profile && privilege.affiliated) {
             FunctionItem(R.string.logout, icon = R.drawable.logout_fill0) { dialog = 1 }
         }
-        FunctionItem(R.string.user_info, icon = R.drawable.person_fill0) { onNavigate(UserInfo) }
+        FunctionItem(R.string.user_info, icon = R.drawable.person_fill0) {
+            onNavigate(Destination.UserInfo)
+        }
         if(VERSION.SDK_INT >= 28 && privilege.device) {
-            FunctionItem(R.string.options, icon = R.drawable.tune_fill0) { onNavigate(UsersOptions) }
+            FunctionItem(R.string.options, icon = R.drawable.tune_fill0) {
+                onNavigate(Destination.UsersOptions)
+            }
         }
         if(privilege.device) {
-            FunctionItem(R.string.user_operation, icon = R.drawable.sync_alt_fill0) { onNavigate(UserOperation) }
+            FunctionItem(R.string.user_operation, icon = R.drawable.sync_alt_fill0) {
+                onNavigate(Destination.UserOperation)
+            }
         }
         if(VERSION.SDK_INT >= 24 && privilege.device) {
-            FunctionItem(R.string.create_user, icon = R.drawable.person_add_fill0) { onNavigate(CreateUser) }
+            FunctionItem(R.string.create_user, icon = R.drawable.person_add_fill0) {
+                onNavigate(Destination.CreateUser)
+            }
         }
-        FunctionItem(R.string.change_username, icon = R.drawable.edit_fill0) { onNavigate(ChangeUsername) }
+        FunctionItem(R.string.change_username, icon = R.drawable.edit_fill0) {
+            onNavigate(Destination.ChangeUsername)
+        }
         var changeUserIconDialog by remember { mutableStateOf(false) }
         var bitmap: Bitmap? by remember { mutableStateOf(null) }
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
@@ -123,10 +131,14 @@ fun UsersScreen(vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Any) -> 
                 changeUserIconDialog = false
             }) { changeUserIconDialog = false }
         if(VERSION.SDK_INT >= 28 && privilege.device) {
-            FunctionItem(R.string.user_session_msg, icon = R.drawable.notifications_fill0) { onNavigate(UserSessionMessage) }
+            FunctionItem(R.string.user_session_msg, icon = R.drawable.notifications_fill0) {
+                onNavigate(Destination.UserSessionMessage)
+            }
         }
         if(VERSION.SDK_INT >= 26) {
-            FunctionItem(R.string.affiliation_id, icon = R.drawable.id_card_fill0) { onNavigate(AffiliationId) }
+            FunctionItem(R.string.affiliation_id, icon = R.drawable.id_card_fill0) {
+                onNavigate(Destination.AffiliationId)
+            }
         }
     }
     if (VERSION.SDK_INT >= 28 && dialog == 1) AlertDialog(
@@ -151,8 +163,6 @@ fun UsersScreen(vm: MyViewModel, onNavigateUp: () -> Unit, onNavigate: (Any) -> 
     )
 }
 
-@Serializable object UsersOptions
-
 @Composable
 fun UsersOptionsScreen(
     getLogoutEnabled: () -> Boolean, setLogoutEnabled: (Boolean) -> Unit, onNavigateUp: () -> Unit
@@ -175,8 +185,6 @@ data class UserInformation(
     val logout: Boolean = false, val ephemeral: Boolean = false, val affiliated: Boolean = false,
     val serial: Long = 0
 )
-
-@Serializable object UserInfo
 
 @Composable
 fun UserInfoScreen(getInfo: () -> UserInformation, onNavigateUp: () -> Unit) {
@@ -218,8 +226,6 @@ class UserIdentifier(val id: Int, val serial: Long)
 enum class UserOperationType {
     Start, Switch, Stop, Delete
 }
-
-@Serializable object UserOperation
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -370,8 +376,6 @@ fun UserOperationScreen(
 
 data class CreateUserResult(val message: Int, val serial: Long = -1)
 
-@Serializable object CreateUser
-
 @RequiresApi(24)
 @Composable
 fun CreateUserScreen(
@@ -436,8 +440,6 @@ fun CreateUserScreen(
     }
 }
 
-@Serializable object AffiliationId
-
 @RequiresApi(26)
 @Composable
 fun AffiliationIdScreen(
@@ -478,8 +480,6 @@ fun AffiliationIdScreen(
     }
 }
 
-@Serializable object ChangeUsername
-
 @Composable
 fun ChangeUsernameScreen(setName: (String) -> Unit, onNavigateUp: () -> Unit) {
     val context = LocalContext.current
@@ -506,8 +506,6 @@ fun ChangeUsernameScreen(setName: (String) -> Unit, onNavigateUp: () -> Unit) {
         }
     }
 }
-
-@Serializable object UserSessionMessage
 
 @RequiresApi(28)
 @Composable

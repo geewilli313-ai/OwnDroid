@@ -1,4 +1,4 @@
-package com.bintianqi.owndroid.dpm
+package com.bintianqi.owndroid.ui.screen
 
 import android.app.admin.DevicePolicyManager
 import android.app.admin.DevicePolicyManager.WIPE_EUICC
@@ -77,23 +77,30 @@ import com.bintianqi.owndroid.ui.MyScaffold
 import com.bintianqi.owndroid.ui.NavIcon
 import com.bintianqi.owndroid.ui.Notes
 import com.bintianqi.owndroid.ui.SwitchItem
+import com.bintianqi.owndroid.ui.navigation.Destination
 import com.bintianqi.owndroid.yesOrNo
 import kotlinx.serialization.Serializable
 
-@Serializable object WorkProfile
-
 @Composable
-fun WorkProfileScreen(onNavigateUp: () -> Unit, onNavigate: (Any) -> Unit) {
+fun WorkProfileScreen(onNavigateUp: () -> Unit, onNavigate: (Destination) -> Unit) {
     val privilege by Privilege.status.collectAsStateWithLifecycle()
     MyScaffold(R.string.work_profile, onNavigateUp, 0.dp) {
         if(VERSION.SDK_INT >= 30 && !privilege.org) {
-            FunctionItem(R.string.org_owned_work_profile, icon = R.drawable.corporate_fare_fill0) { onNavigate(OrganizationOwnedProfile) }
+            FunctionItem(R.string.org_owned_work_profile, icon = R.drawable.corporate_fare_fill0) {
+                onNavigate(Destination.OrganizationOwnedProfile)
+            }
         }
         if(privilege.org) {
-            FunctionItem(R.string.suspend_personal_app, icon = R.drawable.block_fill0) { onNavigate(SuspendPersonalApp) }
+            FunctionItem(R.string.suspend_personal_app, icon = R.drawable.block_fill0) {
+                onNavigate(Destination.SuspendPersonalApp)
+            }
         }
-        FunctionItem(R.string.intent_filter, icon = R.drawable.filter_alt_fill0) { onNavigate(CrossProfileIntentFilter) }
-        FunctionItem(R.string.delete_work_profile, icon = R.drawable.delete_forever_fill0) { onNavigate(DeleteWorkProfile) }
+        FunctionItem(R.string.intent_filter, icon = R.drawable.filter_alt_fill0) {
+            onNavigate(Destination.CrossProfileIntentFilter)
+        }
+        FunctionItem(R.string.delete_work_profile, icon = R.drawable.delete_forever_fill0) {
+            onNavigate(Destination.DeleteWorkProfile)
+        }
     }
 }
 
@@ -101,8 +108,6 @@ data class CreateWorkProfileOptions(
     val skipEncrypt: Boolean, val offline: Boolean, val migrateAccount: Boolean,
     val accountName: String, val accountType: String, val keepAccount: Boolean
 )
-
-@Serializable object CreateWorkProfile
 
 @Composable
 fun CreateWorkProfileScreen(
@@ -165,8 +170,6 @@ fun CreateWorkProfileScreen(
     }
 }
 
-@Serializable object OrganizationOwnedProfile
-
 @RequiresApi(30)
 @Composable
 fun OrganizationOwnedProfileScreen(
@@ -204,8 +207,6 @@ fun OrganizationOwnedProfileScreen(
 
 val activateOrgProfileCommand = "dpm mark-profile-owner-on-organization-owned-device --user " +
         "${Binder.getCallingUid()/100000} com.bintianqi.owndroid/com.bintianqi.owndroid.Receiver"
-
-@Serializable object SuspendPersonalApp
 
 @RequiresApi(30)
 @Composable
@@ -266,8 +267,6 @@ val crossProfileIntentFilterPresets = mapOf(
     R.string.allow_file_sharing to
             IntentFilterOptions(Intent.ACTION_SEND, Intent.CATEGORY_DEFAULT, "*/*", 3)
 )
-
-@Serializable object CrossProfileIntentFilter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -451,8 +450,6 @@ fun CrossProfileIntentFilterScreen(
         )
     }
 }
-
-@Serializable object DeleteWorkProfile
 
 @Composable
 fun DeleteWorkProfileScreen(

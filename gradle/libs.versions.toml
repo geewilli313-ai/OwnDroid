@@ -2,7 +2,7 @@
 agp = "9.0.1"
 kotlin = "2.3.10"
 
-navigation-compose = "2.9.7"
+nav3 = "1.0.1"
 composeBom = "2026.02.00"
 accompanist-drawablepainter = "0.37.3"
 accompanist-permissions = "0.37.3"
@@ -21,9 +21,11 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose" }
 androidx-material3 = { module = "androidx.compose.material3:material3" }
-androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 androidx-fragment = { group = "androidx.fragment", name = "fragment", version.ref = "fragment" }
 material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+
+androidx-nav3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "nav3" }
+androidx-nav3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "nav3" }
 
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist-drawablepainter" }
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist-permissions" }
