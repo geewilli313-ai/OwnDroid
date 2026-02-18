@@ -183,3 +183,6 @@ fun parsePackageNames(input: String) = input.lines().filter { it.isNotEmpty() }
 
 val getInstalledAppsFlags =
     if(Build.VERSION.SDK_INT >= 24) PackageManager.MATCH_DISABLED_COMPONENTS or PackageManager.MATCH_UNINSTALLED_PACKAGES else 0
+
+fun searchInString(query: String, content: String)
+        = query.split(' ').all { content.contains(it, true) }

@@ -74,9 +74,6 @@ data class AppInfo(
     val flags: Int
 )
 
-private fun searchInString(query: String, content: String)
-    = query.split(' ').all { content.contains(it, true) }
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun AppChooserScreen(

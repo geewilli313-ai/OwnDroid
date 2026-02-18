@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
@@ -41,6 +42,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Delete
@@ -97,6 +99,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -116,6 +119,7 @@ import com.bintianqi.owndroid.adaptiveInsets
 import com.bintianqi.owndroid.dpm.PermissionItem
 import com.bintianqi.owndroid.dpm.runtimePermissions
 import com.bintianqi.owndroid.parsePackageNames
+import com.bintianqi.owndroid.searchInString
 import com.bintianqi.owndroid.showOperationResultToast
 import com.bintianqi.owndroid.ui.FullWidthRadioButtonItem
 import com.bintianqi.owndroid.ui.FunctionItem
@@ -128,6 +132,7 @@ import com.bintianqi.owndroid.ui.PackageNameTextField
 import com.bintianqi.owndroid.ui.SwitchItem
 import com.bintianqi.owndroid.ui.navigation.Destination
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -488,19 +493,54 @@ fun PermissionDetailScreen(
     var selectedPackage by remember { mutableStateOf<Pair<String, Int>?>(null) }
     var showUserApps by remember { mutableStateOf(true) }
     var showSystemApps by remember { mutableStateOf(false) }
+    var searchMode by remember { mutableStateOf(false) }
+    var query by remember { mutableStateOf("") }
     val displayedPackagesList = packagesList.filter {
-        (showUserApps && it.first.flags and ApplicationInfo.FLAG_SYSTEM == 0) ||
-                (showSystemApps && it.first.flags and ApplicationInfo.FLAG_SYSTEM != 0)
+        ((showUserApps && it.first.flags and ApplicationInfo.FLAG_SYSTEM == 0) ||
+                (showSystemApps && it.first.flags and ApplicationInfo.FLAG_SYSTEM != 0)) &&
+                (!searchMode || query.isBlank() || searchInString(query, it.first.name) ||
+                        searchInString(query, it.first.label))
     }
+    val fm = LocalFocusManager.current
     LaunchedEffect(Unit) {
-        packagesList.addAll(getPermissionPackages(param.permission))
+        launch(Dispatchers.IO) {
+            packagesList.addAll(getPermissionPackages(param.permission))
+        }
     }
     Scaffold(
         topBar = {
             TopAppBar(
-                { Text(stringResource(permissionItem.label)) },
+                {
+                    if (searchMode) {
+                        val fr = remember { FocusRequester() }
+                        LaunchedEffect(Unit) { fr.requestFocus() }
+                        OutlinedTextField(
+                            query, { query = it },
+                            Modifier.fillMaxWidth().focusRequester(fr),
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions { fm.clearFocus() },
+                            placeholder = { Text(stringResource(R.string.search)) },
+                            trailingIcon = {
+                                IconButton({
+                                    query = ""
+                                    searchMode = false
+                                }) {
+                                    Icon(Icons.Outlined.Clear, null)
+                                }
+                            },
+                            textStyle = typography.bodyLarge
+                        )
+                    } else {
+                        Text(stringResource(permissionItem.label))
+                    }
+                },
                 navigationIcon = { NavIcon(onNavigateUp) },
                 actions = {
+                    if (!searchMode) {
+                        IconButton({ searchMode = true }) {
+                            Icon(Icons.Default.Search, null)
+                        }
+                    }
                     var menu by remember { mutableStateOf(false) }
                     Box {
                         IconButton({ menu = true }) {
@@ -533,12 +573,13 @@ fun PermissionDetailScreen(
         contentWindowInsets = adaptiveInsets()
     ) { paddingValues ->
         LazyColumn(Modifier.padding(paddingValues)) {
-            items(displayedPackagesList) { (info, grantState) ->
+            items(displayedPackagesList, { it.first.name }) { (info, grantState) ->
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .clickable { selectedPackage = info.name to grantState }
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                        .padding(horizontal = 8.dp, vertical = 6.dp)
+                        .animateItem(),
                     Arrangement.SpaceBetween, Alignment.CenterVertically
                 ) {
                     Row(Modifier.weight(1F), verticalAlignment = Alignment.CenterVertically) {
@@ -1216,12 +1257,11 @@ fun ManagedConfigurationScreen(
     val restrictions by appRestrictions.collectAsStateWithLifecycle()
     var searchMode by remember { mutableStateOf(false) }
     var searchKeyword by remember { mutableStateOf("") }
-    val displayRestrictions = if (searchKeyword.isEmpty()) {
+    val displayRestrictions = if (!searchMode || searchKeyword.isBlank()) {
         restrictions
     } else {
         restrictions.filter {
-            it.key.contains(searchKeyword, true) ||
-                    it.title?.contains(searchKeyword, true) ?: true
+            searchInString(searchKeyword, it.key) || it.title?.contains(searchKeyword, true) ?: true
         }
     }
     var dialog by remember { mutableStateOf<AppRestriction?>(null) }
