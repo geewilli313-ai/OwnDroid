@@ -94,6 +94,20 @@
                 <action android:name="android.app.action.CHECK_POLICY_COMPLIANCE" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".activity.ProvisioningActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.action.GET_PROVISIONING_MODE" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activity.ProvisioningPolicyComplianceActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.app.action.ADMIN_POLICY_COMPLIANCE" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".Receiver"
