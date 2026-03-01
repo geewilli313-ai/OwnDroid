@@ -35,17 +35,15 @@
 
 ## FAQ
 
-### 设备上有账号
+### 设备上已有账号
 
 ```text
 java.lang.IllegalStateException: Not allowed to set the device owner because there are already some accounts on the device
 ```
 
-解决办法：
-- 冻结持有这些账号的app。
-- 删除这些账号。
+解决办法：冻结持有这些账号的app，或删除这些账号。
 
-### 设备上有多个用户
+### 设备上已有多个用户
 
 ```text
 java.lang.IllegalStateException: Not allowed to set the device owner because there are already several users on the device
@@ -86,7 +84,7 @@ user limit reached
 三星限制了多用户功能，暂无解决办法。
 
 
-### 创建工作资料
+### 创建工作资料/用户
 
 在大部分设备上，设置device owner后不能创建工作资料，因为系统在设置device owner时会添加`no_add_managed_profile`等用户限制。
 Device owner不能修改系统设置的用户限制，但如果你有root权限，你可以在adb shell中执行以下命令以关闭这个限制。
@@ -97,6 +95,9 @@ pm set-user-restriction no_add_managed_profile 0
 pm set-user-restriction no_add_private_profile 0
 pm set-user-restriction no_add_clone_profile 0
 ```
+
+一些系统在设置了device owner后不允许在安卓设置中创建用户，你可以在OwnDroid中创建用户。
+如果你有root，你也可以在adb shell中运行以上命令以解除限制。
 
 ## API
 

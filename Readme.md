@@ -41,9 +41,7 @@ Use Android's DevicePolicyManager API to manage your device.
 java.lang.IllegalStateException: Not allowed to set the device owner because there are already some accounts on the device
 ```
 
-Solutions:
-- Freeze apps who hold those accounts.
-- Delete these accounts.
+Solutions: freeze the accounts' holder apps, or delete those accounts.
 
 ### Already several users on the device
 
@@ -59,7 +57,7 @@ Solution: Delete secondary users, including work profile, private space and app 
 java.lang.IllegalStateException: Trying to set the device owner (com.bintianqi.owndroid/.Receiver), but device owner (xxx) is already set.
 ```
 
-Only 1 device owner can exist on a device. Please deactivate the existing device owner first.
+Only one device owner can exist on a device. Please deactivate the existing device owner first.
 
 ### MIUI & HyperOS
 
@@ -87,7 +85,7 @@ user limit reached
 
 Samsung restricts Android's multiple users feature. There is currently no solution.
 
-### Create work profile
+### Create work profile / user
 
 On most devices, creating work profile is not allowed by the system when the device owner exist.
 Because the system add `no_add_managed_profile` user restriction when a device owner is set.
@@ -99,6 +97,9 @@ pm set-user-restriction no_add_managed_profile 0
 pm set-user-restriction no_add_private_profile 0
 pm set-user-restriction no_add_clone_profile 0
 ```
+
+Some systems disable the feature of adding users in Android settings once a device owner is set.
+You have to create users in OwnDroid. Or if you have root, run the above command in adb shell to remove that restriction.
 
 ## API
 

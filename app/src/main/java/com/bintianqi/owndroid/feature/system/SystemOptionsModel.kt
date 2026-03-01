@@ -22,7 +22,7 @@ data class SystemOptionsStatus(
 class GlobalSetting(val icon: Int, val name: Int, val setting: String) // also for secure settings
 
 val globalSettings = listOf(
-    GlobalSetting(R.drawable.cell_tower_fill0, R.string.data_roaming, Settings.Global.DATA_ROAMING),
+    //GlobalSetting(R.drawable.cell_tower_fill0, R.string.data_roaming, Settings.Global.DATA_ROAMING),
     GlobalSetting(R.drawable.adb_fill0, R.string.enable_adb, Settings.Global.ADB_ENABLED),
     GlobalSetting(R.drawable.usb_fill0, R.string.enable_usb_mass_storage,
         Settings.Global.USB_MASS_STORAGE_ENABLED),
