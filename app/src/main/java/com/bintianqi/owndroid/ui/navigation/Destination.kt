@@ -36,8 +36,7 @@ sealed class Destination : NavKey {
     @Serializable object DisableAccountManagement : Destination()
     @Serializable object FrpPolicy : Destination()
     @Serializable object WipeData : Destination()
-    @Serializable object SystemUpdatePolicy : Destination()
-    @Serializable object InstallSystemUpdate : Destination()
+    @Serializable object SystemUpdate : Destination()
 
     @Serializable object Network : Destination()
     @Serializable object NetworkOptions : Destination()

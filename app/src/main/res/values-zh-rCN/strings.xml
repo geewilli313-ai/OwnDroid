@@ -218,6 +218,7 @@
     <string name="account_list_is">账户列表：</string>
 
     <!--SystemUpdatePolicy-->
+    <string name="system_update">系统更新</string>
     <string name="is_security_patch">安全补丁: %1$s</string>
     <string name="no_system_update">暂无系统更新</string>
     <string name="system_update_policy">系统更新策略</string>

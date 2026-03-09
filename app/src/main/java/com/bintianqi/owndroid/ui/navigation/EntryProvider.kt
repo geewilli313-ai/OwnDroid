@@ -249,7 +249,7 @@ fun myEntryProvider(
     ) {
         DisableAccountManagementScreen(viewModel(), ::navigateUp)
     }
-    entry<Destination.SystemUpdatePolicy> {
+    entry<Destination.SystemUpdate> {
         SystemUpdateScreen(viewModel(factory = container.viewModelFactory), ::navigateUp)
     }
     entry<Destination.FrpPolicy>(

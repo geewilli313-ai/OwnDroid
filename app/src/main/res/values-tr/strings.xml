@@ -225,6 +225,7 @@
     <string name="account_list_is">"Hesap listesi: "</string>
 
     <!--SystemUpdatePolicy-->
+    <string name="system_update">System update</string> <!--TODO-->
     <string name="is_security_patch">Güvenlik yaması: %1$s</string>
     <string name="no_system_update">Sistem güncellemesi yok</string>
     <string name="system_update_policy">Sistem Güncelleme Politikası</string>

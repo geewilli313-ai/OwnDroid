@@ -195,6 +195,7 @@
     <string name="account_list_is">Список аккаунтов: </string>
 
     <!--Политика системных обновлений-->
+    <string name="system_update">System update</string> <!--TODO-->
     <string name="is_security_patch">Патч безопасности: %1$s</string>
     <string name="no_system_update">Нет системных обновлений</string>
     <string name="system_update_policy">Политика системных обновлений</string>

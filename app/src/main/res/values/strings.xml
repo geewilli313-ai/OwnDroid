@@ -245,6 +245,7 @@
     <string name="account_list_is">"Account list: "</string>
 
     <!--SystemUpdatePolicy-->
+    <string name="system_update">System update</string>
     <string name="is_security_patch">Security patch: %1$s</string>
     <string name="no_system_update">There\'s no system update</string>
     <string name="system_update_policy">System update policy</string>
