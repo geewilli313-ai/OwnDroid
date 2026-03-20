@@ -85,7 +85,7 @@ sealed class Destination : NavKey {
     @Serializable object EditAppGroup : Destination()
 
     @Serializable class ApplicationDetails(val packageName: String) : Destination()
-    @Serializable class AppPermissionsManager(val packageName: String) : Destination()
+    @Serializable object AppPermissionsManager : Destination()
     @Serializable class ManagedConfiguration(val packageName: String) : Destination()
 
     @Serializable data class ApplicationsList(

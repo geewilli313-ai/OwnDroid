@@ -76,7 +76,16 @@ class SharedViewModelStoreNavEntryDecorator<T : Any>(
                 Log.d(TAG, "Decorating entry, key: ${entry.contentKey}, metadata: ${entry.metadata}")
             }
             // If the entry indicates it has a parent, use its parent's ViewModelStore.
-            val contentKey = entry.metadata[PARENT_CONTENT_KEY] ?: entry.contentKey
+            val parentKey = entry.metadata[PARENT_CONTENT_KEY]
+            val contentKey = if (parentKey == null) {
+                entry.contentKey
+            } else { // For destinations like Destination.ApplicationDetails
+                if (parentKey::class.isCompanion) {
+                    parentKey::class.java.enclosingClass.simpleName
+                } else {
+                    parentKey::class.simpleName!!
+                }
+            }
             val viewModelStore =
                 viewModelStore.getEntryViewModel().viewModelStoreForKey(contentKey.toString())
 
