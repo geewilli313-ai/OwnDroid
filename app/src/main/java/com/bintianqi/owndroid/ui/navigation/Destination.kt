@@ -88,12 +88,12 @@ sealed class Destination : NavKey {
     @Serializable object AppPermissionsManager : Destination()
     @Serializable class ManagedConfiguration(val packageName: String) : Destination()
 
-    @Serializable data class ApplicationsList(
+    @Serializable class ApplicationsList(
         val canSwitchView: Boolean, val multiSelect: Boolean
     ) : Destination()
 
     @Serializable object UserRestriction : Destination()
-    @Serializable data class UserRestrictionOptions(val id: String) : Destination()
+    @Serializable class UserRestrictionOptions(val id: String) : Destination()
     @Serializable object UserRestrictionEditor : Destination()
 
     @Serializable object Users : Destination()
